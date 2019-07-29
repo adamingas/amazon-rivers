@@ -7,6 +7,7 @@ library(dplyr)
 library(ggplot2)
 library(magrittr)
 library(cluster)
+library(metagenomeSeq)
 
 wwf =read.table(file = "WWF_Samples.txt",header =TRUE,sep = "\t",stringsAsFactors = FALSE)
 otudata = read.table(file = "WWF_Peru_for_BenCalderhead.csv",sep = ",",stringsAsFactors = FALSE)
@@ -16,6 +17,7 @@ colnames(otutable) <- c("ID",t(otudata)[1,-1])
 otudf <- as.data.frame(x=otutable[,-1],stringsAsFactors=FALSE,row.names = otutable[,1])
 #otudf$ID <- as.character(otudf$ID)
 otudf[,]<- sapply(otudf[,], as.numeric)
+otumatrix <-as.matrix( t(otudf))
 wwfdf <- as.data.frame(x=wwf)
 wwfdf$Area_group %<>% as.numeric %>% as.factor
 wwfdf[,"Area_group_name"] <- sapply(wwfdf[,"Area_group_name"],as.factor)
@@ -45,20 +47,23 @@ plotfun(PCA$CA$u,"PC1","PC2")+labs(title = "Sites PCA",
 ggsave(filename = "pcaotu12.png",dpi=600)
 biplot(PCA, choices = c(1,2), type = c("text", "points"), xlim = c(-5,10)) # biplot of axis 1 vs 2
 
-###############################
-# Principal oordinate analysis#
-###############################
-otudist <- vegdist(otudf,method="bray")
+################################
+# Principal coordinate analysis#
+################################
+otudist <- vegdist(otudf,method="jaccard")
 otupcoa <-pcoa(otudist)
+plotfun(otupcoa$vectors,"Axis.1","Axis.3") +labs(title = "Sites PCOA",
+y ="PCOA axis 2",x = "PCOA axis 1")
+
 plot(otupcoa$values$Relative_eig[1:10])
 biplot.pcoa(otupcoa)
+plot(otupcoa$vectors[,5],otupcoa$vectors[,1])
 
 pcoam   <- merge(otupcoa$vectors[,1:2],wwfdf[,c("ID","Area_group","Area_group_name")],by.x=0,by.y="ID")
 ppcoa   <- ggplot(pcoam,aes_string("Axis.1","Axis.2"))
 ppcoa + geom_point(color = "black",size=2)+ geom_point(aes(color = Area_group_name),size=1.5) +labs(title = "Sites NMDS",
         y ="PCOA axis 2",x = "PCOA axis 1") +scale_colour_brewer(palette = "Accent")  
-plotfun(otupcoa$vectors[,1:2],"Axis.1","Axis.2") +labs(title = "Sites PCOA",
-y ="PCOA axis 2",x = "PCOA axis 1")
+
 ggsave(filename = "pcoaotu12.png",dpi =600)
 plotfun(otupcoa$vectors[,1:3],"Axis.1","Axis.3") +labs(title = "Sites PCOA",
                                                        y ="PCOA axis 3",x = "PCOA axis 1")
@@ -117,6 +122,7 @@ northnmds <- envfit(nmds1~ Northing
                     ,wwfdf)
 plot(nmds1,display = "sites")
 plot(northnmds)
+legend("topleft",legend = c("Northing","Easting"),fill = c("red","green"))
 with(wwfdf,ordisurf(nmds1,Easting,add=TRUE,col = "green"))
 with(wwfdf,ordisurf(nmds1,Northing,add=TRUE,col = "red"))
 #######
@@ -163,24 +169,39 @@ summary(rowSums(otudf))
 
 
 # large disparity in the total number of reads
-which(rowSums(otudf)<10000)
+low_rowsums<- which(rowSums(otudf)<10000)
 # there are 7 samples that contain less than 10000 reads, we can
 # exclude them to see how clustering, and ordination change
 exclude <-  !( rownames(otudf) %in% names(which(rowSums(otudf)<10000)))
 otudf.min <- otudf[exclude,]
 # Running nmds again with 2D
-  autonmds(otudf.min,pbool=TRUE)
-  ggsave(filename = "nmdsotumin12.png",dpi=600)
-  autonmds(otudf,pbool=TRUE)
+autonmds(otudf.min,pbool=TRUE)
+ggsave(filename = "nmdsotumin12.png",dpi=600)
+autonmds(otudf,pbool=TRUE)
 # Slight difference between the two data sets
 # Trying Kmeans to see if there is a difference
     
-    otudf.min.bray <-  vegdist(x = otudf.min,method ="bray")
-    otupam.bray <- pam(x = otudf.min.bray,diss = T,k=2)
-    
-    plot(otupam.bray,which.plot = 1)
-  
+otudf.min.bray <-  vegdist(x = otudf.min,method ="bray")
+otupam.bray <- pam(x = otudf.min.bray,diss = T,k=2)
+plot(otupam.bray,which.plot = 1)
 
+#############
+# Normalising #
+#############
+rrarefy(otudf.min)
+
+# Normalisation using CSS abd metaseq package
+MRotu <-newMRexperiment(otumatrix)
+MRotucss <-cumNorm(MRotu,p = cumNormStat(MRotu))
+otudf.css <- t(MRcounts(MRotucss,norm = TRUE))
+# Trying out NMDS
+autonmds(otudf.css,TRUE)
+# Diferent results, much better separation of water colour
+#PCoA
+otudist.css <- vegdist(otudf.css,method="bray")
+otupcoa.css <-pcoa(otudist.css)
+plotfun(otupcoa.css$vectors,"Axis.1","Axis.3") +labs(title = "Sites PCOA",
+  y ="PCOA axis 2",x = "PCOA axis 1")
 ########################
 # Meta Data exploration#
 ########################
