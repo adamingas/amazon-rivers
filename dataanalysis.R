@@ -185,23 +185,73 @@ otudf.min.bray <-  vegdist(x = otudf.min,method ="bray")
 otupam.bray <- pam(x = otudf.min.bray,diss = T,k=2)
 plot(otupam.bray,which.plot = 1)
 
-#############
+###############
 # Normalising #
-#############
+###############
 rrarefy(otudf.min)
 
 # Normalisation using CSS abd metaseq package
+cssnormalisation <- function(dataframe){
+  # Normalises dataframe
+  MRObject <-newMRexperiment(t(dataframe))
+  MRObject.css<-cumNorm(MRObject, p = cumNormStat(MRObject))
+  dataframe.css <- t(MRcounts(MRObject.css,norm = TRUE))
+  return(dataframe.css)
+}
+
 MRotu <-newMRexperiment(otumatrix)
 MRotucss <-cumNorm(MRotu,p = cumNormStat(MRotu))
 otudf.css <- t(MRcounts(MRotucss,norm = TRUE))
+
+otudf.min.css <- cssnormalisation(otudf.min)
+
+(otudf.min) %>%
+  cssnormalisation()%>%
+  {autonmds(.,FALSE)}%>%
+  {plotfun(data = .$points,"MDS1","MDS2") +labs(title = "Sites NMDS_MIN_CSS",
+  y ="NMDS axis 2",x = "NMDS axis 1")}
+ggsave(dpi=600,filename = "nmds12otumincss.png")
+
+t(otudf) %>%
+  newMRexperiment() %>%
+  cumNorm(.,p = cumNormStat(.))%>%
+  MRcounts(norm = TRUE)%>%
+  t %>%
+  vegdist(method="bray") %>%
+  pcoa()%>%
+  {plotfun(data = .$vectors,"Axis.1","Axis.2") +labs(title = "Sites PCOA_CSS Bray",
+   y ="PCOA axis 2",x = "PCOA axis 1")}
+ggsave(dpi=600,filename = "pcoa12otucss.png")
+
 # Trying out NMDS
 autonmds(otudf.css,TRUE)
+
 # Diferent results, much better separation of water colour
 #PCoA
 otudist.css <- vegdist(otudf.css,method="bray")
 otupcoa.css <-pcoa(otudist.css)
 plotfun(otupcoa.css$vectors,"Axis.1","Axis.3") +labs(title = "Sites PCOA",
   y ="PCOA axis 2",x = "PCOA axis 1")
+
+otudf.css %>%
+  vegdist(method = "bray")%>%
+  {pcoa(.)$vectors} -> pcoaCss
+otudf.min.css %>%
+  vegdist(method = "bray")%>%
+  {pcoa(.)$vectors} -> pcoaMinCss
+nmds20Css <-metaMDS(otudf.css,distance = "bray",trace = T,
+        autotransform = F,k=20,trymax = 1000)
+nmds20MinCss <-metaMDS(otudf.min.css,distance = "bray",trace = T,
+                    autotransform = F,k=20,trymax = 100)
+
+# Minimum wwfdf 
+write.csv(wwfdf[exclude,],file="wwfdfmin")
+write.csv(x = otudf.css,file = "otudfCss")
+write.csv(x = otudf.min.css,file = "otudfMinCss")
+write.csv(x = pcoaCss,file = "pcoaCss")
+write.csv(x = pcoaMinCss,file = "pcoaMinCss")
+write.csv(x = nmds20Css$points,file = "nmds20Css")
+write.csv(x = nmds20MinCss$points,file = "nmds20MinCss")
 ########################
 # Meta Data exploration#
 ########################
