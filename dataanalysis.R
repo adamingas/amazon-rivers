@@ -23,6 +23,8 @@ wwfdf$Area_group %<>% as.numeric %>% as.factor
 wwfdf[,"Area_group_name"] <- sapply(wwfdf[,"Area_group_name"],as.factor)
 wwfdf$Water %<>% as.factor
 
+wwfdf$ID_nosamples <- gsub(pattern = "[a-zA-Z-]","",wwfdf$ID)
+wwfdf$ID_nosamples %<>% as.factor
 #write.csv(wwfdf,file="wwfdf")
 #write.csv(otudf,file = "otudf")
 plotfun <- function(data,axis1,axis2){
@@ -32,13 +34,18 @@ plotfun <- function(data,axis1,axis2){
   + geom_point(aes(fill = Area_group_name),size=3)
   + geom_point(aes(color = Area_group_name),size=2)
   +scale_colour_brewer(palette = "Accent")    
-  )}
+ )}
+
+###Correlation of features
+cormatrix <- cor(otudf,method = "pearson")
+highCorIndx <- findCorrelation(cormatrix,cutoff = 0.9)
+otudflowcor <- otudf[,highCorIndx]
 #######
 # PCA #
 #######
-PCA <- rda(otudf, scale = FALSE)
+PCA <- rda((otudf), scale = FALSE)
 barplot(as.vector(PCA$CA$eig)/sum(PCA$CA$eig))
-sum(PCA$CA$eig[1:4])/sum(PCA$CA$eig)
+sum(PCA$CA$eig[1:2])/sum(PCA$CA$eig)
 # 45% 2D
 # 60% 3D
 # 70% 4D
@@ -67,7 +74,15 @@ ppcoa + geom_point(color = "black",size=2)+ geom_point(aes(color = Area_group_na
 ggsave(filename = "pcoaotu12.png",dpi =600)
 plotfun(otupcoa$vectors[,1:3],"Axis.1","Axis.3") +labs(title = "Sites PCOA",
                                                        y ="PCOA axis 3",x = "PCOA axis 1")
-
+# Creating PCoA using Bray-Curtis distance to save it as a csv and use it 
+# as features in classification
+(otudflowcor) %>%
+  vegdist(method = "bray")%>%
+  {pcoa(.,correction = "lingoes")} %>%#-> pcoaOtu
+ { plotfun(.$vectors,"Axis.1","Axis.2") +labs(title = "Sites PCoA Euclidean",
+ y ="PCOA axis 2",x = "PCOA axis 1")}
+ggsave(filename = "pcoa12eucotu.png",dpi = 600)
+write.csv(x=pcoaOtu$vectors,file="pcoaOtu")
 ###################################################################
 # Applying NMDS and plotting it using area name for color plotting#
 ###################################################################
@@ -111,7 +126,7 @@ p + geom_point(color = "black",size=2)+ geom_point(aes(color = Area_group_name),
 stressplot(nmds1)
 # good stress plot
 # Species nmds is not very informative
-otudf %>%
+otudflowcor %>%
   metaMDS(k=2,trace = F,distance = "bray",autotransform = F,trymax = F) %>%
   ordiplot( display = "species",cex=1,type="t") 
 # Environmental variables fitting
@@ -195,7 +210,7 @@ cssnormalisation <- function(dataframe){
   # Normalises dataframe
   MRObject <-newMRexperiment(t(dataframe))
   MRObject.css<-cumNorm(MRObject, p = cumNormStat(MRObject))
-  dataframe.css <- t(MRcounts(MRObject.css,norm = TRUE))
+  dataframe.css <- t(MRcounts(MRObject.css,norm = TRUE,log = TRUE))
   return(dataframe.css)
 }
 
@@ -205,7 +220,7 @@ otudf.css <- t(MRcounts(MRotucss,norm = TRUE))
 
 otudf.min.css <- cssnormalisation(otudf.min)
 
-(otudf.min) %>%
+(otudf) %>%
   cssnormalisation()%>%
   {autonmds(.,FALSE)}%>%
   {plotfun(data = .$points,"MDS1","MDS2") +labs(title = "Sites NMDS_MIN_CSS",
@@ -214,14 +229,14 @@ ggsave(dpi=600,filename = "nmds12otumincss.png")
 
 t(otudf) %>%
   newMRexperiment() %>%
-  cumNorm(.,p = cumNormStat(.))%>%
+  cumNorm(.,p = cumNormStatFast(.))%>%
   MRcounts(norm = TRUE)%>%
   t %>%
   vegdist(method="bray") %>%
   pcoa()%>%
-  {plotfun(data = .$vectors,"Axis.1","Axis.2") +labs(title = "Sites PCOA_CSS Bray",
+  {plotfun(data = .$vectors,"Axis.1","Axis.2") +labs(title = "Sites PCOA_MIN_CSS Bray",
    y ="PCOA axis 2",x = "PCOA axis 1")}
-ggsave(dpi=600,filename = "pcoa12otucss.png")
+ggsave(dpi=600,filename = "pcoa12otumincss.png")
 
 # Trying out NMDS
 autonmds(otudf.css,TRUE)
@@ -274,3 +289,63 @@ site_distance %>%
   ordiplot(choices = c(1,2))
   stressplot()
 ggsave(filename = "nmdsdistance.png",dpi =600)
+### MRobject creation and exploration
+# Creating taxonomic dataframes
+taxa <- otudata[,seq(1,8)][,-c(1,2,8)]
+taxadf <- data.frame(taxa[-1,],row.names = otudata[-1,1] )
+colnames(taxadf) <- taxa[1,]
+taxonomicData <- AnnotatedDataFrame(taxadf)
+rownames(wwfdf) <- wwfdf$ID
+metaData <- AnnotatedDataFrame(wwfdf)
+# Crating an MR object
+MRdata<- newMRexperiment(t(otudf),featureData = taxonomicData,phenoData = metaData)
+# Aggreagating by taxonomy
+MRClass <- aggregateByTaxonomy(obj = MRdata,lvl = "Class")
+heatmapCols = colorRampPalette(brewer.pal(9, "RdBu"))(50)
+heatmapColColors = brewer.pal(12, "Set3")[as.integer(wwfdf$Water)]
+plotMRheatmap(obj = MRdata,n = 100,norm = TRUE,cexRow = 0.25,
+              col=heatmapCols,cexCol = 0.25,trace = "none",
+              ColSideColors = heatmapColColors)
+
+plotCorr(MRdata,n=200,dendrogram= "none",cexRow = 0.25,
+         col=heatmapCols,cexCol = 0.25,trace = "none")
+
+plotOrd(MRdata, tran = TRUE, usePCA = FALSE, useDist = TRUE,
+        bg = wwfdf$Water, pch = 21,norm = TRUE)
+rownames(wwfdf) <- wwfdf$ID
+
+#Differential abundance testing
+# Filtering
+MRdata<- filterData(MRdata,present = 20,depth =1)
+# Normalising
+MRdata <- cumNorm(MRdata,p = 0.5)
+
+mod <- model.matrix(~1 + Water, data = pData(MRdata))
+fittedModel<- fitFeatureModel(MRdata,mod = mod)
+#############
+# PERMANOVA #
+#############
+perm <-how(plots =Plots(strata = wwfdf$ID_nosamples), within = Within(type = "series", mirror = TRUE))
+shuffle(wwfdf,control = perm)
+rval <- rep(NA,2000)
+rval[1] <- adonis(formula = otudf ~ wwfdf$Water,permutations = 1,
+        method="bray",data = otudf)$aov.tab[1,4]
+set.seed(11235)
+for (i in 2:2000) {
+  indx <- shuffle(wwfdf,control = perm)
+  rvalrand <- adonis(formula = otudf ~ wwfdf$Water[indx],permutations = 1,
+                method="bray",data = otudf)$aov.tab[1,4]
+  rval[i] <- rvalrand
+}
+print(pval <- sum(rval >= rval[1]) / (2000))
+# P vaue is 0.025 which means it's significant
+hist(rval)
+rval[1]
+
+
+par(mfrow=c(1,1))
+plot(meta11<-metaMDS(otudf,k = 2,distance = "bray"),type="n",
+     main="same beta-disp\nsame location")
+points(meta11,select=which(wwfdf$Water =="White"),col="red")
+points(meta11,select=which(wwfdf$Water =="Black"),col="blue")
+ordispider(meta11,group=wwfdf$Water)
