@@ -8,6 +8,12 @@ library(ggplot2)
 library(magrittr)
 library(cluster)
 library(metagenomeSeq)
+library(caret)
+library(MASS)
+library(corrplot)
+library(mvabund)
+library(bartMachine)
+
 
 wwf =read.table(file = "WWF_Samples.txt",header =TRUE,sep = "\t",stringsAsFactors = FALSE)
 otudata = read.table(file = "WWF_Peru_for_BenCalderhead.csv",sep = ",",stringsAsFactors = FALSE)
@@ -35,11 +41,21 @@ plotfun <- function(data,axis1,axis2){
   + geom_point(aes(color = Area_group_name),size=2)
   +scale_colour_brewer(palette = "Accent")    
  )}
-
-###Correlation of features
-cormatrix <- cor(otudf,method = "pearson")
+###########################
+# Correlation of features #
+###########################
+cormatrix <- cor(otudf,method = "spearman")
 highCorIndx <- findCorrelation(cormatrix,cutoff = 0.9)
-otudflowcor <- otudf[,highCorIndx]
+length( highCorIndx)
+otudflowcor <- otudf[,-highCorIndx]
+#write.csv(otudflowcor,file = "otudflowcor")
+otudflowcor%>%
+  {newMRexperiment(t(.))} %>%
+  {plotCorr(.,n=300,dendrogram= "none",cexRow = 0.25,
+         col=heatmapCols,cexCol = 0.25,trace = "none",norm = FALSE
+         ,fun = function(x){cor(x,method = "spearman")})}
+
+
 #######
 # PCA #
 #######
@@ -57,9 +73,12 @@ biplot(PCA, choices = c(1,2), type = c("text", "points"), xlim = c(-5,10)) # bip
 ################################
 # Principal coordinate analysis#
 ################################
-otudist <- vegdist(otudf,method="jaccard")
-otupcoa <-pcoa(otudist)
-plotfun(otupcoa$vectors,"Axis.1","Axis.3") +labs(title = "Sites PCOA",
+
+otupcoa <-otudf %>%
+  vegdist(method="bray") %>%
+  pcoa()
+  
+plotfun(otupcoa$vectors,"Axis.1","Axis.2") +labs(title = "Sites PCOA",
 y ="PCOA axis 2",x = "PCOA axis 1")
 
 plot(otupcoa$values$Relative_eig[1:10])
@@ -109,14 +128,14 @@ NMDS.scree(otudf)
 # 2 dimensions has a stress betd ween 0.1 and 0.2, 3D has a little bit higher than 0.1
 # and 4D around 0.1
 set.seed(11235)
-nmds1 <-metaMDS(otudf,distance = "bray",trace = F,
+nmds1 <-metaMDS(otudf,distance = "euclidean",trace = F,
                 autotransform = F,k=2,trymax = 1000)
 
 #write.csv(x = nmds1$points[,],file = "nmds20dim")
 nmdsm <-merge(nmds1$points,wwfdf[,c("ID","Area_group","Area_group_name","Water")],by.x=0,by.y="ID")
 plotfun(nmds1$points,"MDS1","MDS2") +labs(title = "Sites NMDS",
                                           y ="NMDS axis 2",x = "NMDS axis 1")
-#ggsave(filename = "nmdsotu12.png",dpi=600)
+ggsave(filename = "nmdsotu12euc.png",dpi=600)
 
 # plotting using ggplot
 p <- ggplot(nmdsm,aes(MDS1,MDS2))
@@ -133,8 +152,23 @@ otudflowcor %>%
 
 waternmds <- envfit(nmds1 ~ Water,wwfdf)
 locnmds <- envfit(nmds1~ Easting,wwfdf)
-northnmds <- envfit(nmds1~ Northing
-                    ,wwfdf)
+northnmds <- envfit(nmds1~ Northing,wwfdf)
+#extract environmental data from ordisurf
+extract.xyz <- function(obj) {
+  xy <- expand.grid(x = obj$grid$x, y = obj$grid$y)
+  xyz <- cbind(xy, c(obj$grid$z))
+  names(xyz) <- c("x", "y", "z")
+  return(xyz)
+}
+
+ordnorth <- with (wwfdf,ordisurf(nmds1,Northing,plot = FALSE))
+ordeast <- with (wwfdf,ordisurf(nmds1,Easting,plot = FALSE))
+contoursnorth <- extract.xyz(ordnorth)
+contourseast <- extract.xyz(ordeast)
+
+ggplot(data = contoursnorth, aes(x, y, z = z)) + stat_contour(aes(colour = ..level..)) +
+  ggplot(data = contourseast, aes(x, y, z = z)) + stat_contour(aes(colour = ..level..)) 
+
 plot(nmds1,display = "sites")
 plot(northnmds)
 legend("topleft",legend = c("Northing","Easting"),fill = c("red","green"))
@@ -180,9 +214,9 @@ alphaplot <- ggplot(data = wwfdf,aes(x = Easting,y = simpson))
 alphaplot + geom_point(aes(shape = Water,col = Area_group_name))
 
 summary(rowSums(otudf))
-
-
-
+#######
+# MIN #
+######
 # large disparity in the total number of reads
 low_rowsums<- which(rowSums(otudf)<10000)
 # there are 7 samples that contain less than 10000 reads, we can
@@ -199,18 +233,42 @@ autonmds(otudf,pbool=TRUE)
 otudf.min.bray <-  vegdist(x = otudf.min,method ="bray")
 otupam.bray <- pam(x = otudf.min.bray,diss = T,k=2)
 plot(otupam.bray,which.plot = 1)
+############################
+# Testing for significance #
+############################
+# getting normalised counts
 
+otudf.min %>%
+  cssnormalisation()%>%
+  as.data.frame()%>%
+  {.$alpha <-diversity(.,index = "invsimpson")}%>%
+  {merge(.,wwfdf[,c("ID","Water")],by.x=0,by.y="ID") }-> alphaotu
+{wilcox.test(x ~ Water,data =alphaotu)}
+ggplot(alphaotu,aes(x = Water,fill=Water,y=x))+
+  geom_boxplot()
+
+##Checking permutations
+perm <-how(plots =Plots(strata = wwfdf$ID_nosamples), within = Within(type = "series", mirror = TRUE))
+rval <- rep(NA,2000)
+rval[1] <- wilcox.test(x ~ Water,data =alphaotu)$stat
+set.seed(11235)
+for (i in 2:2000) {
+  indx <- shuffle(alphaotu,control = perm)
+  rvalrand <- wilcox.test(x ~ Water[indx],data =alphaotu)$stat
+  rval[i] <- rvalrand
+}
+print(pval <- sum(rval >= rval[1]) / (2000))
 ###############
 # Normalising #
 ###############
 rrarefy(otudf.min)
 
 # Normalisation using CSS abd metaseq package
-cssnormalisation <- function(dataframe){
+cssnormalisation <- function(dataframe,log=FALSE){
   # Normalises dataframe
   MRObject <-newMRexperiment(t(dataframe))
   MRObject.css<-cumNorm(MRObject, p = cumNormStat(MRObject))
-  dataframe.css <- t(MRcounts(MRObject.css,norm = TRUE,log = TRUE))
+  dataframe.css <- t(MRcounts(MRObject.css,norm = TRUE,log = log))
   return(dataframe.css)
 }
 
@@ -218,8 +276,8 @@ MRotu <-newMRexperiment(otumatrix)
 MRotucss <-cumNorm(MRotu,p = cumNormStat(MRotu))
 otudf.css <- t(MRcounts(MRotucss,norm = TRUE))
 
-otudf.min.css <- cssnormalisation(otudf.min)
-
+otudf.css <- cssnormalisation(otudf)
+hist(rowSums(otudf.css))
 (otudf) %>%
   cssnormalisation()%>%
   {autonmds(.,FALSE)}%>%
@@ -229,7 +287,7 @@ ggsave(dpi=600,filename = "nmds12otumincss.png")
 
 t(otudf) %>%
   newMRexperiment() %>%
-  cumNorm(.,p = cumNormStatFast(.))%>%
+  cumNorm(.,p = cumNormStat(.))%>%
   MRcounts(norm = TRUE)%>%
   t %>%
   vegdist(method="bray") %>%
@@ -243,14 +301,21 @@ autonmds(otudf.css,TRUE)
 
 # Diferent results, much better separation of water colour
 #PCoA
-otudist.css <- vegdist(otudf.css,method="bray")
+otupcoa.css<- otudf.css %>%
+  vegdist(method="bray") %>%
+  pcoa 
 otupcoa.css <-pcoa(otudist.css)
 plotfun(otupcoa.css$vectors,"Axis.1","Axis.3") +labs(title = "Sites PCOA",
   y ="PCOA axis 2",x = "PCOA axis 1")
 
-otudf.css %>%
+otudf %>% cssnormalisation(log=TRUE)%>%
   vegdist(method = "bray")%>%
-  {pcoa(.)$vectors} -> pcoaCss
+  {pcoa(.)$vectors} %>%#-> pcoaCss %>%
+  {plotfun(.,"Axis.1","Axis.2") +labs(title = "Sites PCOA",
+                                                        y ="PCOA axis 2",x = "PCOA axis 1")
+  }
+
+
 otudf.min.css %>%
   vegdist(method = "bray")%>%
   {pcoa(.)$vectors} -> pcoaMinCss
@@ -267,6 +332,10 @@ write.csv(x = pcoaCss,file = "pcoaCss")
 write.csv(x = pcoaMinCss,file = "pcoaMinCss")
 write.csv(x = nmds20Css$points,file = "nmds20Css")
 write.csv(x = nmds20MinCss$points,file = "nmds20MinCss")
+# css with log normalisation
+otudf %>% cssnormalisation(log=TRUE) -> otudf.css.log
+write.csv(x = otudf.css.log,file = "otudfCssLog")
+
 ########################
 # Meta Data exploration#
 ########################
@@ -299,6 +368,8 @@ rownames(wwfdf) <- wwfdf$ID
 metaData <- AnnotatedDataFrame(wwfdf)
 # Crating an MR object
 MRdata<- newMRexperiment(t(otudf),featureData = taxonomicData,phenoData = metaData)
+MRdatanorm<- cumNorm(MRdata,p=cumNormStat(MRdata))
+otudf
 # Aggreagating by taxonomy
 MRClass <- aggregateByTaxonomy(obj = MRdata,lvl = "Class")
 heatmapCols = colorRampPalette(brewer.pal(9, "RdBu"))(50)
@@ -322,6 +393,13 @@ MRdata <- cumNorm(MRdata,p = 0.5)
 
 mod <- model.matrix(~1 + Water, data = pData(MRdata))
 fittedModel<- fitFeatureModel(MRdata,mod = mod)
+
+# Creating a histogram of total sample reads
+df <- data.frame(Water = wwfdf$Water, size = rowSums(otudf.css))
+ggplot(df, aes(x =size,color =Water )) +
+  geom_histogram(fill ="white",position = "dodge",bins = 20) +
+  labs(title = "Histogram of total sample counts CSS")
+ggsave(filename = "histogramofcountdatacss.png",dpi =300)
 #############
 # PERMANOVA #
 #############
@@ -349,3 +427,45 @@ plot(meta11<-metaMDS(otudf,k = 2,distance = "bray"),type="n",
 points(meta11,select=which(wwfdf$Water =="White"),col="red")
 points(meta11,select=which(wwfdf$Water =="Black"),col="blue")
 ordispider(meta11,group=wwfdf$Water)
+
+#
+# LDA #
+#######
+#Removing correlated features 
+cormatrix <- cor(otudf,method = "spearman")
+highCorIndx <- findCorrelation(cormatrix,cutoff = 0.8)
+otudflowcor <- otudf[,-highCorIndx]
+write.csv(otudflowcor,file = "otudfLow")
+
+otudfpcoa <-pcoa(vegdist(otudf.css))
+dataforlda <- cbind(as.matrix(otudflowcor),as.numeric(wwfdf$Water)-1)
+colnames( dataforlda)[length(dataforlda)]<- "Water"
+dataforlda %<>% data.frame()
+f <- paste("Water", "~", paste(names(dataforlda)[-length(dataforlda)], collapse=" + "))
+dldatest<-lda(x= otudflowcor,grouping = wwfdf$Water,CV=TRUE)
+ldacalss <-lda(x = otudfpcoa$vectors,grouping = wwfdf$Water,CV=TRUE)$class
+mean(ldacalss == wwfdf$Water)
+
+#####
+# MVABUND #
+######
+
+######
+# BART #
+########
+# train test stratified split
+trainIndx <- createDataPartition(wwfdf$Area_group,times =7,p = 0.8)
+for (i in trainIndx){
+  bartmodel = bartMachine(X=otudf[i,],y=wwfdf$Water[i],verbose = F)
+  predbart <-bart_predict_for_test_data(bartmodel,otudf[-i,],wwfdf$Water[-i])
+  print(mean(predbart$y_hat ==wwfdf$Water[-i]))
+}
+
+bm<- bartMachine(X = otudf,y=wwfdf$Water)
+bart_predict_for_test_data(bm,otudf,wwfdf$Water)$y_hat ==wwfdf$Water
+
+## Bayesian adiit
+#A review of tree baed bayesn methods 
+# BART bayesian additive random trees
+#WAIC
+#widly applicable aic
