@@ -71,13 +71,14 @@ read.table(file="HumanGutI_COGcountsRaw.txt")
 wwfdf$Eastingj = wwfdf$Easting + rnorm(n=164,sd=5e3)
 wwfdf$Northingj = wwfdf$Northing+ rnorm(sd=5e3,n=164)
 ggplot(wwfdf,aes(x=Eastingj,y=Northingj,shape =Water))+
-  geom_point(size=4.1,aes(color = Area_group_name))+
+  geom_point(size=8.1,aes(color = Area_group_name))+
   #scale_color_brewer()+
   #geom_point(color = "Black",size = 1.9)+
-  geom_point(size=1.5,aes(shape = Water), color = wwfdf$Water)+
+  geom_point(size=5.5,aes(shape = Water), color = wwfdf$Water)+
   #aes(color = Water,size = 1.5)+
   #scale_colour_manual(values =c("Black","White"))
-  labs(title = "Peruvian Rivers")
+   theme(legend.text=element_text(size=20))+
+labs(title = "Peruvian Rivers")
 ggsave(width = 16,height = 9,dpi=300,filename = "mapofrivers.png")
 
 countdf<- taxadf %>%

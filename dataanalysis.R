@@ -276,7 +276,8 @@ MRotu <-newMRexperiment(otumatrix)
 MRotucss <-cumNorm(MRotu,p = cumNormStat(MRotu))
 otudf.css <- t(MRcounts(MRotucss,norm = TRUE))
 
-otudf.css <- cssnormalisation(otudf)
+otudf.css1 <- cssnormalisation(otudf[1:140,],log=TRUE)
+otudf.css2 <- cssnormalisation(otudf,log=TRUE)[1:140,]
 hist(rowSums(otudf.css))
 (otudf) %>%
   cssnormalisation()%>%
@@ -296,6 +297,16 @@ t(otudf) %>%
    y ="PCOA axis 2",x = "PCOA axis 1")}
 ggsave(dpi=600,filename = "pcoa12otumincss.png")
 
+#only fishes otudf
+fishindex =taxadf["Class"] == "Actinopterygii"
+fishdf = otudf[,fishindex]
+notzerosmples =rowSums( fishdf) != 0
+fishdf.css = cssnormalisation(fishdf[notzerosmples,])
+fishdf.css.log =cssnormalisation(fishdf[notzerosmples,],log=TRUE)
+write.csv(fishdf[notzerosmples,],file = "fishdf")
+write.csv(wwfdf[notzerosmples,],file="wwfdffish")
+write.csv(fishdf.css,file= "fishdfcss")
+write.csv(fishdf.css.log,file= "fishdfcsslog")
 # Trying out NMDS
 autonmds(otudf.css,TRUE)
 
@@ -363,6 +374,7 @@ ggsave(filename = "nmdsdistance.png",dpi =600)
 taxa <- otudata[,seq(1,8)][,-c(1,2,8)]
 taxadf <- data.frame(taxa[-1,],row.names = otudata[-1,1] )
 colnames(taxadf) <- taxa[1,]
+fishotus =rownames(taxadf[(taxadf["Class"] == "Actinopterygii"),])
 taxonomicData <- AnnotatedDataFrame(taxadf)
 rownames(wwfdf) <- wwfdf$ID
 metaData <- AnnotatedDataFrame(wwfdf)
@@ -410,7 +422,7 @@ rval[1] <- adonis(formula = otudf ~ wwfdf$Water,permutations = 1,
         method="bray",data = otudf)$aov.tab[1,4]
 set.seed(11235)
 for (i in 2:2000) {
-  indx <- shuffle(wwfdf,control = perm)
+  indx <- shuffle(wwfdf)#,control = perm)
   rvalrand <- adonis(formula = otudf ~ wwfdf$Water[indx],permutations = 1,
                 method="bray",data = otudf)$aov.tab[1,4]
   rval[i] <- rvalrand
