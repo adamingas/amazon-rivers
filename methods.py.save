@@ -41,27 +41,25 @@ def splithypothesis(*args,cvgenerator,xset,model_cv,number_of_splits,number_of_f
     # except KeyError:
     # 	grouppings = None
     # 	print("No groupping parameters")
-    # Storing Index
-    yindex = yset.index
-    Ksets = traintestsplit.split(xset,y =ygroup,groups=ygroup)
+    Ksets = traintestsplit.split(xset,y =yset,groups=yset)
     # scoring_results is a list with the scores of the estimator on each test set in
     # the traintestsplit folds.
     best_parameters =[]
     scoring_results = []
     coefficients =[]
-    false_samples =[]
+    false_samples = []
     confusion = np.zeros((np.unique(yset).shape[0],np.unique(yset).shape[0]))
     # Vlidation cross vlidator
     try:
     	cvgenerator2 = args[0]["cvgenerator2"]
     except KeyError:
-    	print("Same CV generator as train-test split. To change it set cvgenerator2 to StratifiedKFold or GroupKFold")
+    	print("Same CV generator as train-test split")
     	cvgenerator2 = cvgenerator
     for i,index in enumerate( Ksets):
         train_index,test_index = index
         xtrain,xtest = xset.iloc[train_index],xset.iloc[test_index]
         ytrain,ytest = yset.iloc[train_index],yset.iloc[test_index]
-        set_for_kfold = ygroup.loc[xtrain.index]
+        set_for_kfold = yset.loc[xtrain.index]
         print(i)
         np.random.seed(11235)
         CVfolds = cvgenerator2(n_splits = number_of_folds)
@@ -70,22 +68,20 @@ def splithypothesis(*args,cvgenerator,xset,model_cv,number_of_splits,number_of_f
 #             print(set_for_kfold.iloc[ind2])
         # Perform grid CV using Kfolds as folds.
         parameters,CVgrid,coef =model_cv(args[0],X=xtrain,y = ytrain,trainfolds=Kfolds)
-        predicted = CVgrid.predict(xtest)
         # parameters are the best parameters of the model and CVgrid is the output
         # of the GridSearchCV method
-        conf_matrix = metrics.confusion_matrix(ytest, predicted)
-        
+        conf_matrix = metrics.confusion_matrix(ytest, CVgrid.predict(xtest))
+        predictions = CVgrid.predict(xtest)
         best_parameters.append(parameters)
-        scoring_results.append( metrics.accuracy_score(ytest,predicted ))
+        scoring_results.append( metrics.accuracy_score(ytest, CVgrid.predict(xtest)))
         coefficients.append(coef)
+        false_samples.append()
         if conf_matrix.shape == (1,1):
             conf_matrix = np.array([[0,0],[0,conf_matrix.item()]])
         print(conf_matrix)
         confusion += conf_matrix
-
-        # Checking which samples where wrongly predicted
-        false_samples +=yindex[test_index[ytest != predicted]].tolist()
-    return(scoring_results,best_parameters,coefficients,confusion,false_samples)
+        
+    return(scoring_results,best_parameters,coefficients,confusion)
 
 def runningsplittest(foldgenerator,model_cv,index,xsetlist,ysetlist,**kwargs):
     """
@@ -107,20 +103,17 @@ def runningsplittest(foldgenerator,model_cv,index,xsetlist,ysetlist,**kwargs):
     try:
     	ygrouplist = kwargs["ygrouplist"]
     except KeyError:
-        print("Using class labels as groupping variables. To choose a different groupping ",
-        " set pass a list of the variables to groupby. Pass the list to ygrouplist")
-        ygrouplist = ysetlist
+    	ygrouplist = ysetlist
     for i,j in enumerate(index):
         print(i)
         # Running the hypothesis for all cases in the index
-        scoring,best_parameters,coefficents,confusion,falsesamples =splithypothesis(kwargs,cvgenerator=foldgenerator,xset=xsetlist[i],model_cv=model_cv,
+        scoring,best_parameters,coefficents,confusion =splithypothesis(kwargs,cvgenerator=foldgenerator,xset=xsetlist[i],model_cv=model_cv,
                                 number_of_splits=7,number_of_folds=6,yset=ysetlist[i],ygroup = ygrouplist[i])
 
         dictr["Scores"]+=[scoring]
         dictr["Parameters"] += [best_parameters]
         dictr["Coefficients"] += [coefficents]
         dictr["Confusion"] += [confusion]
-        dictr["FalseSamples"] += [falsesamples]
     dataf =pd.DataFrame(data = dictr,index=index)
     return(dataf)
 
@@ -141,13 +134,12 @@ def log_cv(*args,X, y,trainfolds):
         penalty = args[0]["penalty"]
     except KeyError:
         penalty = "l1"
-        print("You haven't specified a penalty, we will be using l1. Pass your desired penalty",
-       " to the variable penalty")
+        print("You haven't specified a penalty, we will be using l1")
     if trainfolds ==None:
         foldscv = StratifiedKFold(n_splits=5,random_state=11235)
         trainfolds =foldscv.split(X,wwfdf.Area_group.loc[X.index])
     gsc = GridSearchCV(
-        estimator=LogisticRegression(penalty=penalty,solver='saga',max_iter=10000,random_state=11235,fit_intercept=True),
+        estimator=LogisticRegression(penalty=penalty,solver='liblinear',max_iter=1000,random_state=11235,fit_intercept=True),
         param_grid={
             'C': np.arange(0.001,20,1)
             #,'fit_intercept': (True)
@@ -183,13 +175,10 @@ def rfr_cv(*args,X, y,trainfolds):
         trainfolds =foldscv.split(X,wwfdf.Area_group.loc[X.index])
     # Perform Grid-Search
     gsc = GridSearchCV(
-        estimator=RandomForestClassifier(),
+        estimator=RandomForestClassifier(bootstrap=False),
         param_grid={
-            'max_depth':(list(range(3,7))+[None]),
-            'n_estimators': (500, 1000,300,100),
-            "min_samples_split":[2,3,4],
-            "class_weight" : ["balanced"],
-            "bootstrap": [False]
+            'max_depth': range(3,7),
+            'n_estimators': (500, 1000,100,300),
         },
         cv=trainfolds, scoring = ["accuracy"], verbose=1, 
         n_jobs=-1,refit = "accuracy",return_train_score = False)

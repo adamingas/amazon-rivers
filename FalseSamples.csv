@@ -1,0 +1,17 @@
+ID,Easting,Northing,Details,River,Water,Trip,NM_ID,Sampling_date,Area_group,Area_group_name,river_label,FalseSamples
+2-S13A,523548,9497552,Cocha del R_Áo Chambira. Parte peque__a de cocha. Aguas negras.,Chambira,0,2,NMID3841,15-Aug-18,4,Maranon_lower,0,3
+2-S13B,520707,9500508,Cocha del R_Áo Chambira. Medio de la cocha. Aguas negras.,Chambira,0,2,NMID3842,15-Aug-18,4,Maranon_lower,0,1
+2-S13C,520682,9497154,Cocha del R_Áo Chambira. Final de cocha. Desembocadura Patayacu. Aguas negras.,Chambira,0,2,NMID3843,15-Aug-18,4,Maranon_lower,0,2
+2-S15A,572640,9481435,Samiria. 3km hacia adentro. Aguas negras.,Samiria,0,2,NMID3849,16-Aug-18,4,Maranon_lower,0,3
+2-S15B,574768,9482270,Samiria. 1.5km hacia adentro. Aguas negras.,Samiria,0,2,NMID3850,16-Aug-18,4,Maranon_lower,0,3
+2-S15C,576551,9483691,Samiria. Boca del Mara____n. Aguas negras.,Samiria,0,2,NMID3851,16-May-18,4,Maranon_lower,0,3
+2-S15E,572827,9480405,Samiria. Quebrada Yanayaquillo. Desembocadura a cocha. Aguas negras.,Samiria,0,2,NMID3853,16-Aug-18,4,Maranon_lower,0,3
+2-S18B,631307,9485232,Al medio del tributario,Yanayacu,0,2,NMID3864,12-Aug-18,4,Maranon_lower,0,1
+2-S18C,629223,9485760,Cerca a otra quebrada.,Yanayacu,0,2,NMID3865,12-Aug-18,4,Maranon_lower,0,1
+2-S18D,627963,9486866,Colecta en laguna.,Lake,0,2,NMID4156,12-Aug-18,4,Maranon_lower,0,2
+3-S08d,622463,9413628,Conflu cocha margen izq y canal princ. Aguas neg,Ucayali,0,3,NMID4111,24-Oct-18,6,Tapiche,0,1
+3-S09c,623577,9383177,Confluencia de quebrada y canal princ. Aguas neg,Ucayali,0,3,NMID4114,24-Oct-18,6,Tapiche,0,3
+3-S10d,606650,9355384,Confluencia de quebrada y canal princ. Aguas neg,Quebrada Yanayacu,0,3,NMID4119,24-Oct-18,6,Tapiche,0,1
+3-S14d,559671,9363175,Confluencia de cocha y canal principal. Aguas bla*,Ucayali,0,3,NMID4135,22-Oct-18,5,Ucayali,0,3
+3-S14h,559686,9363174,Confluencia de cocha y canal principal,Ucayali,0,3,NMID4139,22-Oct-18,5,Ucayali,0,3
+3-S20d,661751,9691091,Confluencia de quebrada y canal princ. Aguas neg,Tacsa Curaray,0,3,NMID4187,28-Oct-18,7,Napo,0,1
