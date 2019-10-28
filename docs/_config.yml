@@ -1,3 +1,5 @@
 theme: jekyll-theme-cayman
 title : [Provisional Machine Learning Results]
 description : [This is a temporary site to log important results of exploratory Data analysis done on the amazon-rivers dataset]
+url: "https://github.com/adamingas/amazon-rivers/blob/master" 
+
