@@ -1,0 +1,60 @@
+BNB,FULL,,,,,,9.0,12.0,9.0,134.0,dis_bnb_full,
+BNB,FULL CSS,,,,,,9.0,12.0,9.0,134.0,dis_bnb_full,
+BNB,FULL CSS LOG,,,,,,9.0,12.0,9.0,134.0,dis_bnb_full,
+BNB 100s,FULL100s,,,,,,10.0,11.0,9.0,131.0,dis_bnb_full100s,
+BNB 100s,FULL100s CSS,,,,,,10.0,11.0,9.0,131.0,dis_bnb_full100s,
+BNB 100s,FULL100s CSS LOG,,,,,,10.0,11.0,9.0,131.0,dis_bnb_full100s,
+CNB,FULL,,,,,,7.0,14.0,6.0,137.0,dis_cnb_full,
+CNB,FULL CSS,,,,,,6.0,15.0,5.0,138.0,dis_cnb_full,
+CNB,FULL CSS LOG,,,,,,10.0,11.0,3.0,140.0,dis_cnb_full,
+CNB 100s,FULL100s,,,,,,7.0,14.0,6.0,134.0,dis_cnb_full100s,
+CNB 100s,FULL100s CSS,,,,,,6.0,15.0,5.0,135.0,dis_cnb_full100s,
+CNB 100s,FULL100s CSS LOG,,,,,,9.0,12.0,3.0,137.0,dis_cnb_full100s,
+MNB,FULL,,,,,,7.0,14.0,6.0,137.0,dis_mnb_full,
+MNB,FULL CSS,,,,,,6.0,15.0,5.0,138.0,dis_mnb_full,
+MNB,FULL CSS LOG,,,,,,10.0,11.0,3.0,140.0,dis_mnb_full,
+MNB 100s,FULL100s,,,,,,7.0,14.0,6.0,134.0,dis_mnb_full100s,
+MNB 100s,FULL100s CSS,,,,,,6.0,15.0,5.0,135.0,dis_mnb_full100s,
+MNB 100s,FULL100s CSS LOG,,,,,,9.0,12.0,3.0,137.0,dis_mnb_full100s,
+LOGL2 100s,FULL100s,,,,,,17.0,4.0,43.0,97.0,dis_logl2_full100s_sc,"Standard scaler mean true, liblinear 1000"
+LOGL2 100s,FULL100s CSS,,,,,,21.0,0.0,37.0,103.0,dis_logl2_full100s_sc,"Standard scaler mean true, liblinear 1000"
+LOGL2 100s,FULL100s CSS LOG,,,,,,20.0,1.0,49.0,91.0,dis_logl2_full100s_sc,"Standard scaler mean true, liblinear 1000"
+LOGL2 100s,FULL100s,,,,,,3.0,18.0,9.0,131.0,dis_logl2_full100s,",liblinear 1000"
+LOGL2 100s,FULL100s CSS,,,,,,2.0,19.0,1.0,139.0,dis_logl2_full100s,",liblinear 1000"
+LOGL2 100s,FULL100s CSS LOG,,,,,,7.0,14.0,1.0,139.0,dis_logl2_full100s,",liblinear 1000"
+LOGL2,FULL,,,,,,16.0,5.0,44.0,99.0,dis_logl2_full_sc,"Standard scaler mean true, liblinear 1000"
+LOGL2,FULL CSS,,,,,,21.0,0.0,39.0,104.0,dis_logl2_full_sc,"Standard scaler mean true, liblinear 1000"
+LOGL2,FULL CSS LOG,,,,,,20.0,1.0,46.0,97.0,dis_logl2_full_sc,"Standard scaler mean true, liblinear 1000"
+LOGL2,FULL,,,,,,10.0,11.0,7.0,136.0,dis_logl2_full,liblinear 1000
+LOGL2,FULL CSS,,,,,,2.0,19.0,7.0,136.0,dis_logl2_full,liblinear 1000
+LOGL2,FULL CSS LOG,,,,,,11.0,10.0,1.0,142.0,dis_logl2_full,liblinear 1000
+LOGL1,FULL,,,,,,2.0,19.0,7.0,136.0,dis_logl1_full100s_sc,"Standard scaler mean true, liblinear 1000"
+LOGL1,FULL CSS,,,,,,5.0,16.0,4.0,139.0,dis_logl1_full100s_sc,"Standard scaler mean true, liblinear 1000"
+LOGL1,FULL CSS LOG,,,,,,5.0,16.0,2.0,141.0,dis_logl1_full100s_sc,"Standard scaler mean true, liblinear 1000"
+LOGL1 100s,FULL100s,,,,,,7.0,14.0,14.0,126.0,dis_logl1_full100s,",liblinear 1000"
+LOGL1 100s,FULL100s CSS,,,,,,1.0,20.0,8.0,132.0,dis_logl1_full100s,",liblinear 1000"
+LOGL1 100s,FULL100s CSS LOG,,,,,,6.0,15.0,2.0,138.0,dis_logl1_full100s,",liblinear 1000"
+LOGL1 100s,FULL,,,,,,2.0,19.0,7.0,136.0,dis_logl1_full_sc,"Standard scaler mean true, liblinear 1000"
+LOGL1 100s,FULL CSS,,,,,,5.0,16.0,4.0,139.0,dis_logl1_full_sc,"Standard scaler mean true, liblinear 1000"
+LOGL1 100s,FULL CSS LOG,,,,,,5.0,16.0,2.0,141.0,dis_logl1_full_sc,"Standard scaler mean true, liblinear 1000"
+LOGL1,FULL,,,,,,8.0,13.0,16.0,127.0,dis_logl1_full,liblinear 1000
+LOGL1,FULL CSS,,,,,,2.0,19.0,9.0,134.0,dis_logl1_full,liblinear 1000
+LOGL1,FULL CSS LOG,,,,,,7.0,14.0,2.0,141.0,dis_logl1_full,liblinear 1000
+RFR,FULL,,,,,,2.0,19.0,1.0,142.0,dis_rfr_full,
+RFR,FULL CSS,,,,,,4.0,17.0,1.0,142.0,dis_rfr_full,
+RFR,FULL CSS LOG,,,,,,3.0,18.0,1.0,142.0,dis_rfr_full,
+RFR 100s,FULL100s,,,,,,4.0,17.0,1.0,139.0,dis_rfr_full100s,
+RFR 100s,FULL100s CSS,,,,,,3.0,18.0,1.0,139.0,dis_rfr_full100s,
+RFR 100s,FULL100s CSS LOG,,,,,,3.0,18.0,1.0,139.0,dis_rfr_full100s,
+SVM 100s,FULL100s,,,,,,6.0,15.0,9.0,131.0,dis_svm_full100s_sc,Standard scaler
+SVM 100s,FULL100s CSS,,,,,,9.0,12.0,3.0,137.0,dis_svm_full100s_sc,Standard scaler
+SVM 100s,FULL100s CSS LOG,,,,,,7.0,14.0,4.0,136.0,dis_svm_full100s_sc,Standard scaler
+SVM,FULL,,,,,,6.0,15.0,7.0,136.0,dis_svm_full_sc,Standard scaler
+SVM,FULL CSS,,,,,,9.0,12.0,2.0,141.0,dis_svm_full_sc,Standard scaler
+SVM,FULL CSS LOG,,,,,,4.0,17.0,1.0,142.0,dis_svm_full_sc,Standard scaler
+SVM 100s,FULL100s,,,,,,0.0,21.0,10.0,130.0,dis_svm_full100s,
+SVM 100s,FULL100s CSS,,,,,,2.0,19.0,7.0,133.0,dis_svm_full100s,
+SVM 100s,FULL100s CSS LOG,,,,,,14.0,7.0,3.0,137.0,dis_svm_full100s,
+SVM,FULL,,,,,,6.0,15.0,7.0,136.0,dis_svm_full,
+SVM,FULL CSS,,,,,,9.0,12.0,2.0,141.0,dis_svm_full,
+SVM,FULL CSS LOG,,,,,,4.0,17.0,1.0,142.0,dis_svm_full,
