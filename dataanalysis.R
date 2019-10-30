@@ -13,16 +13,33 @@ library(MASS)
 library(corrplot)
 library(mvabund)
 library(bartMachine)
-
+library(fossil)
 
 wwf =read.table(file = "WWF_Samples.txt",header =TRUE,sep = "\t",stringsAsFactors = FALSE)
 otudata = read.table(file = "WWF_Peru_for_BenCalderhead.csv",sep = ",",stringsAsFactors = FALSE)
 otutable<- t(otudata)[-seq(1,8),]
-colnames(otutable) <- c("ID",t(otudata)[1,-1])
+fullotudata = read.table(header = FALSE,file = "fullotu.csv",sep = ",",stringsAsFactors = F)
+fullotudata[1,fullotudata[2,] == "1D"] = "3-s01d"
 
+fullotutable = t(fullotudata[-c(1,2,3),-seq(1,8)])
+colnames(otutable) <- c("ID",t(otudata)[1,-1])
+colnames(fullotutable) <- fullotudata[-c(1,2,3),1]
+#fullotutable <- sapply(fullotudata[-c(1,2,3),-seq(1,8)],function(x) as.numeric(as.character(x)))
 otudf <- as.data.frame(x=otutable[,-1],stringsAsFactors=FALSE,row.names = otutable[,1])
-#otudf$ID <- as.character(otudf$ID)
 otudf[,]<- sapply(otudf[,], as.numeric)
+
+fullotudf =as.data.frame(x = fullotutable,row.names =  otutable[,1],stringsAsFactors = FALSE)
+fullotudf[,] <- sapply(fullotudf[,],as.numeric) 
+#colnames(fullotudf) = fullotudata[-c(1,2,3),1]
+#row.names(fullotudf) = fullotudata[1,-seq(1,8)]
+riverotus = read.csv(header = FALSE,file = "riverotus.csv",stringsAsFactors = F)
+
+
+#riverotus[riverotus$V2 == "yes","V1"]
+index_of_riverotus = names(otudf) %in% riverotus[riverotus$V2 == "yes","V1"]
+riverdf = otudf[,index_of_riverotus]
+
+#otudf$ID <- as.character(otudf$ID)
 otumatrix <-as.matrix( t(otudf))
 wwfdf <- as.data.frame(x=wwf)
 wwfdf$Area_group %<>% as.numeric %>% as.factor
@@ -237,7 +254,7 @@ plot(otupam.bray,which.plot = 1)
 # Testing for significance #
 ############################
 # getting normalised counts
-
+#############################
 otudf.min %>%
   cssnormalisation()%>%
   as.data.frame()%>%
@@ -261,24 +278,41 @@ print(pval <- sum(rval >= rval[1]) / (2000))
 ###############
 # Normalising #
 ###############
-rrarefy(otudf.min)
+estimateR(rrarefy(riverdf100s,sample = 10000),taxa.row = FALSE)
+estimateR((otudf.min))
+
+# Removing otus with less than 100 total counts
+riverdf100 =riverdf[,-(colSums(riverdf)<100)]
+fullotudf100 = fullotudf[,-(colSums(fullotudf)<100)]
+#Removing samples with less than 10000 read counts
+index_of_riverotus_samples =(rowSums(riverdf) <10000)
+riverdf100s = riverdf100[!index_of_riverotus_samples,]
+# Three samples with less than 10000 in fullotudf
+index_of_fullotu_samples =(rowSums(fullotudf) <10000)
+fullotudf100s = fullotudf100[!index_of_fullotu_samples,]
 
 # Normalisation using CSS abd metaseq package
-cssnormalisation <- function(dataframe,log=FALSE){
+cssnormalisation <- function(dataframe,log=FALSE,p = NULL){
   # Normalises dataframe
   MRObject <-newMRexperiment(t(dataframe))
-  MRObject.css<-cumNorm(MRObject, p = cumNormStat(MRObject))
+  if(is.null(p)) p = cumNormStat(MRObject)
+  MRObject.css<-cumNorm(MRObject, p = p)
   dataframe.css <- t(MRcounts(MRObject.css,norm = TRUE,log = log))
   return(dataframe.css)
 }
-
+csstraining<- function(dataframe){
+  MRObject <-newMRexperiment(t(dataframe))
+  p = cumNormStat(MRObject)
+  
+  return(p)
+}
 MRotu <-newMRexperiment(otumatrix)
 MRotucss <-cumNorm(MRotu,p = cumNormStat(MRotu))
 otudf.css <- t(MRcounts(MRotucss,norm = TRUE))
 
-otudf.css1 <- cssnormalisation(otudf[1:140,],log=TRUE)
-otudf.css2 <- cssnormalisation(otudf,log=TRUE)[1:140,]
-hist(rowSums(otudf.css))
+otudf.css <- cssnormalisation(otudf)
+otudf.csslog <- cssnormalisation(otudf,log=TRUE)
+hist(rowSums(riverdf.css))
 (otudf) %>%
   cssnormalisation()%>%
   {autonmds(.,FALSE)}%>%
@@ -297,6 +331,47 @@ t(otudf) %>%
    y ="PCOA axis 2",x = "PCOA axis 1")}
 ggsave(dpi=600,filename = "pcoa12otumincss.png")
 
+
+# Testing fit transform of css
+# use p on train set. Then transfrom train set itself. then use p to transfrom test 
+# set as well using train set attributes
+sum(cssnormalisation(fullotudf[1:10,]) == cssnormalisation(fullotudf,p=csstraining(fullotudf[11:164,]))[1:10,])
+csstraining(fullotudf[1:100,])
+
+#River dataframe normalisation
+riverdf.css = cssnormalisation(riverdf)
+riverdf.csslog = cssnormalisation(riverdf,log = TRUE)
+riverdf100.css = cssnormalisation(riverdf100)
+riverdf100.csslog = cssnormalisation(riverdf100,log = TRUE)
+
+
+
+riverdf100s.css = cssnormalisation(riverdf100s)
+riverdf100s.csslog = cssnormalisation(riverdf100s,log=TRUE)
+
+write.csv(riverdf,"riverdf")
+write.csv(riverdf.css,"riverdfcss")
+write.csv(riverdf.csslog,"riverdfcsslog")
+
+write.csv(riverdf100s,"riverdf100s")
+write.csv(riverdf100s.css,"riverdf100scss")
+write.csv(riverdf100s.csslog,"riverdf100scsslog")
+
+# Fullotu cssnormalisation and saving
+fullotudf.css = cssnormalisation(fullotudf)
+fullotudf.csslog = cssnormalisation(fullotudf,log = T)
+
+fullotudf100s.css = cssnormalisation(fullotudf100s)
+fullotudf100s.csslog = cssnormalisation(fullotudf100s,log=T)
+
+write.csv(fullotudf,"fullotudf")
+write.csv(fullotudf.css,"fullotudfCss")
+write.csv(fullotudf.csslog,"fullotudfCssLog")
+
+write.csv(fullotudf100s,"fullotudf100s")
+write.csv(fullotudf100s.css,"fullotudf100sCss")
+write.csv(fullotudf100s.csslog,"fullotudf100sCssLog")
+riverdf100s.css %>%colSums()%>%hist()
 #only fishes otudf
 fishindex =taxadf["Class"] == "Actinopterygii"
 fishdf = otudf[,fishindex]
@@ -319,7 +394,7 @@ otupcoa.css <-pcoa(otudist.css)
 plotfun(otupcoa.css$vectors,"Axis.1","Axis.3") +labs(title = "Sites PCOA",
   y ="PCOA axis 2",x = "PCOA axis 1")
 
-otudf %>% cssnormalisation(log=TRUE)%>%
+riverdf %>% cssnormalisation(log=FALSE)%>%
   vegdist(method = "bray")%>%
   {pcoa(.)$vectors} %>%#-> pcoaCss %>%
   {plotfun(.,"Axis.1","Axis.2") +labs(title = "Sites PCOA",

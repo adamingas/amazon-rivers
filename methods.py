@@ -6,17 +6,18 @@ import theano.tensor as tt
 from theano import shared
 from sklearn.model_selection import train_test_split,cross_val_score, GridSearchCV, StratifiedKFold,GroupKFold,RandomizedSearchCV
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import MinMaxScaler
+import sklearn.preprocessing as prepro
 from sklearn.neighbors import KNeighborsClassifier
 import sklearn.metrics as metrics
 import copy
-import xgboost as xgb
+#from sksom import SKSOM
+#import xgboost as xgb
 
 
 
 
 
-def splithypothesis(*args,cvgenerator,xset,model_cv,number_of_splits,number_of_folds,yset,ygroup):
+def splithypothesis(*args,cvgenerator,xset,model_cv,number_of_splits,number_of_folds,yset,ygroup,ygroup2):
     """
     Tests the splits hypothesis on the LogisticRegression classifier.
     
@@ -41,54 +42,76 @@ def splithypothesis(*args,cvgenerator,xset,model_cv,number_of_splits,number_of_f
     # except KeyError:
     # 	grouppings = None
     # 	print("No groupping parameters")
-    Ksets = traintestsplit.split(xset,y =yset,groups=yset)
+    # Storing Index
+    yindex = yset.index
+    Ksets = traintestsplit.split(xset,y =ygroup,groups=ygroup)
     # scoring_results is a list with the scores of the estimator on each test set in
     # the traintestsplit folds.
     best_parameters =[]
     scoring_results = []
     coefficients =[]
+    false_samples =[]
     confusion = np.zeros((np.unique(yset).shape[0],np.unique(yset).shape[0]))
     # Vlidation cross vlidator
     try:
     	cvgenerator2 = args[0]["cvgenerator2"]
     except KeyError:
-    	print("Same CV generator as train-test split")
+    	print("Same CV generator as train-test split. To change it set cvgenerator2 to StratifiedKFold or GroupKFold")
     	cvgenerator2 = cvgenerator
     for i,index in enumerate( Ksets):
         train_index,test_index = index
         xtrain,xtest = xset.iloc[train_index],xset.iloc[test_index]
         ytrain,ytest = yset.iloc[train_index],yset.iloc[test_index]
-        set_for_kfold = yset.loc[xtrain.index]
+        set_for_kfold = ygroup2.loc[xtrain.index]
         print(i)
         np.random.seed(11235)
+
+        # Try scaling. The if a scaler is not provided then the identity transformation is used instead
+        try:
+            scaler = args[0]["scaler"].fit(xtrain)
+        except (KeyError,AttributeError):
+            print("The identity scaler is used. To change it pass a preprocessing class ",
+            "with the variable scaler")
+            scaler = prepro.FunctionTransformer(validate = False).fit(xtrain)
+        # Applying the transformation on the train set
+        xtrain =scaler.transform(xtrain)
+
         CVfolds = cvgenerator2(n_splits = number_of_folds)
         Kfolds = CVfolds.split(xtrain,y = set_for_kfold,groups=set_for_kfold)
 #         for ind1,ind2 in Kfolds:
 #             print(set_for_kfold.iloc[ind2])
         # Perform grid CV using Kfolds as folds.
         parameters,CVgrid,coef =model_cv(args[0],X=xtrain,y = ytrain,trainfolds=Kfolds)
+        # Transform our test data using the same scaler as the train
+        xtest = scaler.transform(xtest)
+        predicted = CVgrid.predict(xtest)
         # parameters are the best parameters of the model and CVgrid is the output
         # of the GridSearchCV method
-        conf_matrix = metrics.confusion_matrix(ytest, CVgrid.predict(xtest))
+        conf_matrix = metrics.confusion_matrix(ytest, predicted)
         
         best_parameters.append(parameters)
-        scoring_results.append( metrics.accuracy_score(ytest, CVgrid.predict(xtest)))
+        scoring_results.append( metrics.accuracy_score(ytest,predicted ))
         coefficients.append(coef)
         if conf_matrix.shape == (1,1):
-            conf_matrix = np.array([[0,0],[0,conf_matrix.item()]])
+            if all(ytest ==0) or all(ytest == "Black"):
+                conf_matrix = np.array([[conf_matrix.item(),0],[0,0]])
+            else:
+                conf_matrix = np.array([[0,0],[0,conf_matrix.item()]])
         print(conf_matrix)
         confusion += conf_matrix
-        
-    return(scoring_results,best_parameters,coefficients,confusion)
 
-def runningsplittest(foldgenerator,model_cv,index,xsetlist,ysetlist,**kwargs):
+        # Checking which samples where wrongly predicted
+        false_samples +=yindex[test_index[ytest != predicted]].tolist()
+    return(scoring_results,best_parameters,coefficients,confusion,false_samples)
+
+def runningsplittest(foldgenerator,model_cv,index,xsetlist,ysetlist,number_of_splits=7,number_of_folds=6,**kwargs):
     """
     Input
     foldgenerator: Stratified or Group KFold
     model_cv: The model CV to use, log_cv or rfr_cv
     
     """
-    dictr ={"Scores":[],"Parameters":[],"Coefficients":[],"Confusion":[]}
+    dictr ={"Scores":[],"Parameters":[],"Coefficients":[],"Confusion":[],"FalseSamples":[]}
     if index ==None:
         index = ["OTU","OTU CSS","OTU MIN CSS","PCoA","PCoA CSS"]
         xsetlist = [otudf,otudfCss,otudfMinCss,pcoaOtu,pcoaCss]
@@ -101,17 +124,26 @@ def runningsplittest(foldgenerator,model_cv,index,xsetlist,ysetlist,**kwargs):
     try:
     	ygrouplist = kwargs["ygrouplist"]
     except KeyError:
-    	ygrouplist = ysetlist
+        print("Using class labels as groupping variables. To choose a different groupping ",
+        " set pass a list of the variables to groupby. Pass the list to ygrouplist")
+        ygrouplist = ysetlist
+    try:
+    	ygrouplist2 = kwargs["ygrouplist2"]
+    except KeyError:
+        print("Using the same groupping svariable in the validation split")
+        ygrouplist2 = ygrouplist
     for i,j in enumerate(index):
         print(i)
         # Running the hypothesis for all cases in the index
-        scoring,best_parameters,coefficents,confusion =splithypothesis(kwargs,cvgenerator=foldgenerator,xset=xsetlist[i],model_cv=model_cv,
-                                number_of_splits=7,number_of_folds=6,yset=ysetlist[i],ygroup = ygrouplist[i])
+        scoring,best_parameters,coefficents,confusion,falsesamples =splithypothesis(kwargs,cvgenerator=foldgenerator,xset=xsetlist[i],model_cv=model_cv,
+                                number_of_splits=number_of_splits,number_of_folds=number_of_folds ,yset=ysetlist[i],ygroup = ygrouplist[i],
+                                ygroup2 = ygrouplist2[i])
 
         dictr["Scores"]+=[scoring]
         dictr["Parameters"] += [best_parameters]
         dictr["Coefficients"] += [coefficents]
         dictr["Confusion"] += [confusion]
+        dictr["FalseSamples"] += [falsesamples]
     dataf =pd.DataFrame(data = dictr,index=index)
     return(dataf)
 
@@ -132,14 +164,16 @@ def log_cv(*args,X, y,trainfolds):
         penalty = args[0]["penalty"]
     except KeyError:
         penalty = "l1"
-        print("You haven't specified a penalty, we will be using l1")
+        print("You haven't specified a penalty, we will be using l1. Pass your desired penalty",
+       " to the variable penalty")
     if trainfolds ==None:
         foldscv = StratifiedKFold(n_splits=5,random_state=11235)
         trainfolds =foldscv.split(X,wwfdf.Area_group.loc[X.index])
     gsc = GridSearchCV(
-        estimator=LogisticRegression(penalty=penalty,solver='liblinear',max_iter=1000,random_state=11235,fit_intercept=True),
+    estimator=LogisticRegression(penalty=penalty,solver='liblinear',max_iter=1000,random_state=11235,fit_intercept=True),
         param_grid={
-            'C': np.arange(0.001,20,1)
+            'C': [0.0001,0.001,0.01,0.1,1,20,50] + list(np.arange(2,20,1))
+           
             #,'fit_intercept': (True)
         },
         cv=trainfolds, scoring = ["accuracy"], verbose=1, n_jobs=-1,refit = "accuracy",
@@ -173,13 +207,16 @@ def rfr_cv(*args,X, y,trainfolds):
         trainfolds =foldscv.split(X,wwfdf.Area_group.loc[X.index])
     # Perform Grid-Search
     gsc = GridSearchCV(
-        estimator=RandomForestClassifier(bootstrap=False),
+        estimator=RandomForestClassifier(),
         param_grid={
-            'max_depth': range(3,7),
-            'n_estimators': (500, 1000,100,300),
+            'max_depth':(list(range(3,7))+[None]),
+            'n_estimators': [100,300,500,1000],
+            "min_samples_split":[2,3,4],
+            "class_weight" : ["balanced"],
+            "bootstrap": [False]
         },
         cv=trainfolds, scoring = ["accuracy"], verbose=1, 
-        n_jobs=2,refit = "accuracy",return_train_score = False)
+        n_jobs=-1,refit = "accuracy",return_train_score = False)
     #  Grid result is the output of the gridsearchcv
     # best_params are the parameters of the highest scoring algorithm
     # coefficients are the weights of the fetures which signify which one is important
@@ -189,6 +226,31 @@ def rfr_cv(*args,X, y,trainfolds):
     
 
     return (best_params,grid_result,coefficients)
+
+def som_cv(*args,X,y,trainfolds):
+    if trainfolds ==None:
+            foldscv = StratifiedKFold(n_splits=5,random_state=11235)
+            trainfolds =foldscv.split(X,wwfdf.Area_group.loc[X.index])
+        # Perform Grid-Search
+    gsc = GridSearchCV(
+        estimator=SKSOM(),
+        param_grid={
+            "x" : [8,10],
+            'sigma':[1,2,0.5],
+            'learning_rate': [0.1],
+            "neighborhood_function":['gaussian','mexican_hat','bubble','triangle']
+        },
+        cv=trainfolds, scoring = ["accuracy"], verbose=1, 
+        n_jobs=-1,refit = "accuracy",return_train_score = False)
+    #  Grid result is the output of the gridsearchcv
+    # best_params are the parameters of the highest scoring algorithm
+    # coefficients are the weights of the fetures which signify which one is important
+    grid_result = gsc.fit(X, y)
+    best_params = grid_result.best_params_
+    
+
+    return (best_params,grid_result,[])
+    
 
 
 def knn_cv(*args,X, y,trainfolds):
