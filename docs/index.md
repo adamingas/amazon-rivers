@@ -6,6 +6,6 @@ layout: default
 
 ---------------
 We will be updating the site soon
-Check out this [link](clusteringresults.md)
+Check out this [link](./clusteringresults.md)
 {{page.url}}
-[link]({{page.url}}/clusteringresults.md)
+[link](./clusteringresults.html)
