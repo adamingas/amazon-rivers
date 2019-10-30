@@ -1,3 +1,6 @@
+---
+layout: default
+---
 ## Spectral Clustering
 Using Spectral clustering with 7 clusters, and first degree polynomial applied to river css log. 
 it has a rand index score of 0.534, one of the best we found.
