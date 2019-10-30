@@ -1,3 +1,6 @@
+---
+layout: default
+---
 # Unsupervised machine learning
 ## Testing the website
 
