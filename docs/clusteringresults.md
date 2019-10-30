@@ -1,6 +1,7 @@
+## Spectral Clustering
 Using Spectral clustering with 7 clusters, and first degree polynomial applied to river css log. 
 it has a rand index score of 0.534, one of the best we found.
-![Spectral Clustering 7 clusters poly 1](../Images/spectralpoly1_rivcsslog.png)
+![Spectral Clustering 7 clusters poly 1](images/spectralpoly1_rivcsslog.png)
 ## K-means clustering 
 K-means clustering with 7 clusters applied to riverdfcsslog dataset.
 Rand index is at 0.526 which is good.
