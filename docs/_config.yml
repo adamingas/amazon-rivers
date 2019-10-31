@@ -17,7 +17,7 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-theme: jekyll-theme-hacker
+theme: jekyll-theme-cayman
 title: [Provisional Machine Learning Results]
 description: [This is a temporary site to log important results of exploratory Data analysis done on the amazon-rivers dataset]
 url: "https://github.com/adamingas/amazon-rivers/raw/master" 
