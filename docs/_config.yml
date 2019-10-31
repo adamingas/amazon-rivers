@@ -20,11 +20,11 @@
 theme: jekyll-theme-cayman
 title: [Provisional Machine Learning Results]
 description: [This is a temporary site to log important results of exploratory Data analysis done on the amazon-rivers dataset]
-url: "https://github.com/adamingas/amazon-rivers/raw/master" 
+#url: "https://github.com/adamingas/amazon-rivers/raw/master" 
 
 
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://github.com/adamingas/amazon-rivers/raw/master/" # the base hostname & protocol for your site, e.g. http://example.com
+#baseurl: "" # the subpath of your site, e.g. /blog
+#url: "https://github.com/adamingas/amazon-rivers/raw/master/" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  adamingas
 
 # Build settings
