@@ -25,7 +25,7 @@ description: [This is a temporary site to log important results of exploratory D
 
 #baseurl: "" # the subpath of your site, e.g. /blog
 #url: "https://github.com/adamingas/amazon-rivers/raw/master/" # the base hostname & protocol for your site, e.g. http://example.com
-github_username:  adamingas
+#github_username:  adamingas
 
 # Build settings
 #theme: minima
