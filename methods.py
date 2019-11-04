@@ -65,6 +65,20 @@ def splithypothesis(*args,cvgenerator,xset,model_cv,number_of_splits,number_of_f
         set_for_kfold = ygroup2.loc[xtrain.index]
         print(i)
         np.random.seed(11235)
+        # Resample techniques that are only applied to the train set
+        try:
+            estimator_random_state = args[0]["random_state"]
+        except (KeyError,AttributeError):
+            estimator_random_state = 11235
+        try:
+            xtrain,ytrain = args[0]["resampler"].fit_resample(X=xtrain,y=ytrain)
+            # The reason we set the cv groups the same as ytrain is because we resampled
+            # ytrain. This means that ygroup2 wil have different shape than ytrain
+            set_for_kfold = ytrain
+        except (KeyError,AttributeError):
+            print("No resampling is performed on the data. To change it pass a resampling method",
+                    "from the imbalanced learn library")
+
 
         # Try scaling. The if a scaler is not provided then the identity transformation is used instead
         try:
@@ -81,7 +95,7 @@ def splithypothesis(*args,cvgenerator,xset,model_cv,number_of_splits,number_of_f
 #         for ind1,ind2 in Kfolds:
 #             print(set_for_kfold.iloc[ind2])
         # Perform grid CV using Kfolds as folds.
-        parameters,CVgrid,coef =model_cv(args[0],X=xtrain,y = ytrain,trainfolds=Kfolds)
+        parameters,CVgrid,coef =model_cv(args[0],X=xtrain,y = ytrain,trainfolds=Kfolds,random_state = estimator_random_state)
         # Transform our test data using the same scaler as the train
         xtest = scaler.transform(xtest)
         predicted = CVgrid.predict(xtest)
@@ -109,7 +123,16 @@ def runningsplittest(foldgenerator,model_cv,index,xsetlist,ysetlist,number_of_sp
     Input
     foldgenerator: Stratified or Group KFold
     model_cv: The model CV to use, log_cv or rfr_cv
-    
+
+    Optional Inputs:
+    resampler: Class from imbalanced learn library
+    scaler: preprocessing class from sklearn.preprocessing
+    penalty: Logistic regression penalty term
+    ygrouplist: The variable used as group for Kfold splitting. 
+                it has to have ta same length as ysetlist. If not set
+                the ysetlist is used instead.
+    ygrouplist2: The variable used for the training Kfold splitting. If not set 
+                 ygrouplist is used instead.
     """
     dictr ={"Scores":[],"Parameters":[],"Coefficients":[],"Confusion":[],"FalseSamples":[]}
     if index ==None:
@@ -148,7 +171,7 @@ def runningsplittest(foldgenerator,model_cv,index,xsetlist,ysetlist,number_of_sp
     return(dataf)
 
 
-def log_cv(*args,X, y,trainfolds):
+def log_cv(*args,X, y,trainfolds,**kwargs):
     """
     Function performs Grid search Cross validation with trainfolds as folds generator. 
     Inputs:
@@ -170,7 +193,8 @@ def log_cv(*args,X, y,trainfolds):
         foldscv = StratifiedKFold(n_splits=5,random_state=11235)
         trainfolds =foldscv.split(X,wwfdf.Area_group.loc[X.index])
     gsc = GridSearchCV(
-    estimator=LogisticRegression(penalty=penalty,solver='liblinear',max_iter=1000,random_state=11235,fit_intercept=True),
+    estimator=LogisticRegression(penalty=penalty,solver='saga',max_iter=1000,random_state=kwargs["estimator_random_state"],
+    fit_intercept=True,multi_class = "multinomial"),
         param_grid={
             'C': [0.0001,0.001,0.01,0.1,1,20,50] + list(np.arange(2,20,1))
            
@@ -183,7 +207,6 @@ def log_cv(*args,X, y,trainfolds):
     grid_result = gsc.fit(X, y)
     best_params = grid_result.best_params_
     coefficients =grid_result.best_estimator_.coef_
-    #rfr = RandomForestRegressor(max_depth=best_params["max_depth"], n_estimators=best_params["n_estimators"],random_state=False, verbose=False)
     # Perform K-Fold CV
     #scores = cross_val_score(rfr, X, y, cv=10, scoring='neg_mean_absolute_error')
 
@@ -207,13 +230,13 @@ def rfr_cv(*args,X, y,trainfolds):
         trainfolds =foldscv.split(X,wwfdf.Area_group.loc[X.index])
     # Perform Grid-Search
     gsc = GridSearchCV(
-        estimator=RandomForestClassifier(),
+        estimator=RandomForestClassifier(random_state = 11235),
         param_grid={
             'max_depth':(list(range(3,7))+[None]),
             'n_estimators': [100,300,500,1000],
             "min_samples_split":[2,3,4],
             "class_weight" : ["balanced"],
-            "bootstrap": [False]
+            "bootstrap": [False,True]
         },
         cv=trainfolds, scoring = ["accuracy"], verbose=1, 
         n_jobs=-1,refit = "accuracy",return_train_score = False)
