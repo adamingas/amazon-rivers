@@ -7,5 +7,5 @@ layout: default
 ---------------
 We will be updating the site soon
 Check out this [link](./clusteringresults.md)
-{{page.url}}
+{{site.url}}
 [link](./clusteringresults.html)

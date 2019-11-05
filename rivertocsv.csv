@@ -1,18 +1,65 @@
-BNB,RIVER,,,,,,,,,,18.0,0.0,0.0,3.0,0.0,17.0,7.0,0.0,1.0,4.0,57.0,15.0,1.0,0.0,13.0,28.0,riv_bnb_riv,
-BNB,RIVER CSS,,,,,,,,,,18.0,0.0,0.0,3.0,0.0,17.0,7.0,0.0,1.0,4.0,57.0,15.0,1.0,0.0,13.0,28.0,riv_bnb_riv,
-BNB,RIVER CSS LOG,,,,,,,,,,18.0,0.0,0.0,3.0,0.0,17.0,7.0,0.0,1.0,4.0,57.0,15.0,1.0,0.0,13.0,28.0,riv_bnb_riv,
-CNB,RIVER,,,,,,,,,,16.0,0.0,0.0,5.0,0.0,21.0,3.0,0.0,14.0,5.0,45.0,13.0,8.0,0.0,10.0,24.0,riv_cnb_riv,
-CNB,RIVER CSS,,,,,,,,,,16.0,0.0,1.0,4.0,0.0,21.0,3.0,0.0,6.0,3.0,60.0,8.0,7.0,0.0,18.0,17.0,riv_cnb_riv,
-CNB,RIVER CSS LOG,,,,,,,,,,18.0,0.0,0.0,3.0,0.0,21.0,3.0,0.0,2.0,5.0,59.0,11.0,4.0,0.0,19.0,19.0,riv_cnb_riv,
-MNB,RIVER,,,,,,,,,,14.0,0.0,1.0,6.0,0.0,21.0,3.0,0.0,1.0,1.0,55.0,20.0,1.0,0.0,10.0,31.0,riv_mnb_riv,
-MNB,RIVER CSS,,,,,,,,,,13.0,0.0,1.0,7.0,0.0,21.0,3.0,0.0,1.0,1.0,52.0,23.0,0.0,0.0,4.0,38.0,riv_mnb_riv,
-MNB,RIVER CSS LOG,,,,,,,,,,18.0,0.0,0.0,3.0,0.0,21.0,3.0,0.0,2.0,4.0,49.0,22.0,1.0,0.0,15.0,26.0,riv_mnb_riv,
-BNB,RIVER,,,,,,13.0,8.0,2.0,141.0,dis_bnb_riv,
-BNB,RIVER CSS,,,,,,13.0,8.0,2.0,141.0,dis_bnb_riv,
-BNB,RIVER CSS LOG,,,,,,13.0,8.0,2.0,141.0,dis_bnb_riv,
-CNB,RIVER,,,,,,9.0,12.0,5.0,138.0,dis_cnb_riv,
-CNB,RIVER CSS,,,,,,13.0,8.0,8.0,135.0,dis_cnb_riv,
-CNB,RIVER CSS LOG,,,,,,19.0,2.0,4.0,139.0,dis_cnb_riv,
-MNB,RIVER,,,,,,9.0,12.0,5.0,138.0,dis_mnb_riv,
-MNB,RIVER CSS,,,,,,13.0,8.0,8.0,135.0,dis_mnb_riv,
-MNB,RIVER CSS LOG,,,,,,20.0,1.0,5.0,138.0,dis_mnb_riv,
+BNB,FULL,,,,,,,,17.0,0.0,7.0,4.0,37.0,7.0,0.0,17.0,75.0,loc_bnb_full,
+BNB,FULL CSS,,,,,,,,17.0,0.0,7.0,4.0,37.0,7.0,0.0,17.0,75.0,loc_bnb_full,
+BNB,FULL CSS LOG,,,,,,,,17.0,0.0,7.0,4.0,37.0,7.0,0.0,17.0,75.0,loc_bnb_full,
+BNB,RIVER,,,,,,,,17.0,0.0,7.0,2.0,34.0,12.0,0.0,18.0,74.0,loc_bnb_riv,
+BNB,RIVER CSS,,,,,,,,17.0,0.0,7.0,2.0,34.0,12.0,0.0,18.0,74.0,loc_bnb_riv,
+BNB,RIVER CSS LOG,,,,,,,,17.0,0.0,7.0,2.0,34.0,12.0,0.0,18.0,74.0,loc_bnb_riv,
+MNB,FULL,,,,,,,,24.0,0.0,0.0,3.0,31.0,14.0,0.0,20.0,72.0,loc_mnb_full,
+MNB,FULL CSS,,,,,,,,24.0,0.0,0.0,4.0,39.0,5.0,0.0,29.0,63.0,loc_mnb_full,
+MNB,FULL CSS LOG,,,,,,,,24.0,0.0,0.0,4.0,33.0,11.0,0.0,22.0,70.0,loc_mnb_full,
+MNB,RIVER,,,,,,,,21.0,0.0,3.0,4.0,30.0,14.0,0.0,17.0,75.0,loc_mnb_riv,
+MNB,RIVER CSS,,,,,,,,20.0,1.0,3.0,1.0,39.0,8.0,0.0,34.0,58.0,loc_mnb_riv,
+MNB,RIVER CSS LOG,,,,,,,,21.0,0.0,3.0,4.0,28.0,16.0,0.0,21.0,71.0,loc_mnb_riv,
+LOGL2 stscale,RIVER,,,,,,,,21.0,0.0,3.0,4.0,27.0,17.0,1.0,14.0,77.0,loc_logl2_riv_sc,"Standard scaler mean false, saga 1000"
+LOGL2 stscale,RIVER CSS,,,,,,,,21.0,0.0,3.0,1.0,19.0,28.0,1.0,19.0,72.0,loc_logl2_riv_sc,"Standard scaler mean false, saga 1000"
+LOGL2 stscale,RIVER CSS LOG,,,,,,,,21.0,0.0,3.0,3.0,32.0,13.0,0.0,14.0,78.0,loc_logl2_riv_sc,"Standard scaler mean false, saga 1000"
+LOGL2 stscale multinomial,RIVER,,,,,,,,19.0,0.0,5.0,4.0,29.0,15.0,1.0,14.0,77.0,loc_logl2_riv_sc_mult,"scaler mean false,saga 1000, multinomial decision function"
+LOGL2 stscale multinomial,RIVER CSS,,,,,,,,21.0,0.0,3.0,2.0,32.0,14.0,0.0,19.0,73.0,loc_logl2_riv_sc_mult,"scaler mean false,saga 1000, multinomial decision function"
+LOGL2 stscale multinomial,RIVER CSS LOG,,,,,,,,21.0,0.0,3.0,1.0,34.0,13.0,0.0,14.0,78.0,loc_logl2_riv_sc_mult,"scaler mean false,saga 1000, multinomial decision function"
+LOGL2 stscale multinomial ROS,RIVER,,,,,,,,24.0,0.0,0.0,4.0,31.0,13.0,1.0,14.0,77.0,loc_logl2_riv_sc_ros_mult,"scaler mean false,saga 1000, multinomial decision function, randomoversample"
+LOGL2 stscale multinomial ROS,RIVER CSS,,,,,,,,21.0,0.0,3.0,2.0,31.0,15.0,1.0,23.0,68.0,loc_logl2_riv_sc_ros_mult,"scaler mean false,saga 1000, multinomial decision function, randomoversample"
+LOGL2 stscale multinomial ROS,RIVER CSS LOG,,,,,,,,24.0,0.0,0.0,4.0,33.0,11.0,1.0,15.0,76.0,loc_logl2_riv_sc_ros_mult,"scaler mean false,saga 1000, multinomial decision function, randomoversample"
+LOGL1 stscale,RIVER,,,,,,,,20.0,0.0,4.0,5.0,24.0,19.0,1.0,11.0,80.0,loc_logl1_riv_sc,"Standard scaler mean False, saga 1000"
+LOGL1 stscale,RIVER CSS,,,,,,,,20.0,1.0,3.0,1.0,28.0,19.0,2.0,14.0,76.0,loc_logl1_riv_sc,"Standard scaler mean False, saga 1000"
+LOGL1 stscale,RIVER CSS LOG,,,,,,,,21.0,0.0,3.0,2.0,31.0,15.0,0.0,17.0,75.0,loc_logl1_riv_sc,"Standard scaler mean False, saga 1000"
+LOGL1 stscale multinomial,RIVER,,,,,,,,21.0,0.0,3.0,4.0,28.0,16.0,1.0,13.0,78.0,loc_logl1_riv_sc_mult,"Standard scaler mean False, saga 1000, multinomial decision function"
+LOGL1 stscale multinomial,RIVER CSS,,,,,,,,21.0,0.0,3.0,1.0,32.0,15.0,3.0,16.0,73.0,loc_logl1_riv_sc_mult,"Standard scaler mean False, saga 1000, multinomial decision function"
+LOGL1 stscale multinomial,RIVER CSS LOG,,,,,,,,21.0,0.0,3.0,1.0,28.0,19.0,0.0,15.0,77.0,loc_logl1_riv_sc_mult,"Standard scaler mean False, saga 1000, multinomial decision function"
+LOGL1 stscale multinomial ROS,RIVER,,,,,,,,24.0,0.0,0.0,4.0,29.0,15.0,1.0,13.0,78.0,loc_logl1_riv_sc_ros_mult,"Standard scaler mean False, saga 1000, multinomial decision function,randomoversample"
+LOGL1 stscale multinomial ROS,RIVER CSS,,,,,,,,21.0,0.0,3.0,2.0,30.0,16.0,6.0,25.0,61.0,loc_logl1_riv_sc_ros_mult,"Standard scaler mean False, saga 1000, multinomial decision function,randomoversample"
+LOGL1 stscale multinomial ROS,RIVER CSS LOG,,,,,,,,24.0,0.0,0.0,2.0,36.0,10.0,2.0,18.0,72.0,loc_logl1_riv_sc_ros_mult,"Standard scaler mean False, saga 1000, multinomial decision function,randomoversample"
+RFR,FULL,,,,,,,,24.0,0.0,0.0,4.0,29.0,15.0,0.0,15.0,77.0,loc_rfr_full,
+RFR,FULL CSS,,,,,,,,24.0,0.0,0.0,4.0,30.0,14.0,0.0,15.0,77.0,loc_rfr_full,
+RFR,FULL CSS LOG,,,,,,,,24.0,0.0,0.0,4.0,32.0,12.0,0.0,15.0,77.0,loc_rfr_full,
+RFR ,RIVER,,,,,,,,24.0,0.0,0.0,3.0,31.0,14.0,0.0,13.0,79.0,loc_rfr_riv,
+RFR ,RIVER CSS,,,,,,,,20.0,0.0,4.0,4.0,30.0,14.0,0.0,12.0,80.0,loc_rfr_riv,
+RFR ,RIVER CSS LOG,,,,,,,,24.0,0.0,0.0,4.0,27.0,17.0,0.0,12.0,80.0,loc_rfr_riv,
+RFR ROS,RIVER,,,,,,,,24.0,0.0,0.0,2.0,31.0,15.0,0.0,12.0,80.0,loc_rfr_riv_ros,RandomOverSampling
+RFR ROS,RIVER CSS,,,,,,,,24.0,0.0,0.0,4.0,32.0,12.0,0.0,12.0,80.0,loc_rfr_riv_ros,RandomOverSampling
+RFR ROS,RIVER CSS LOG,,,,,,,,24.0,0.0,0.0,4.0,34.0,10.0,0.0,12.0,80.0,loc_rfr_riv_ros,RandomOverSampling
+RFR SMOTE,RIVER,,,,,,,,24.0,0.0,0.0,3.0,34.0,11.0,0.0,12.0,80.0,loc_rfr_riv_smote,SMOTE
+RFR SMOTE,RIVER CSS,,,,,,,,24.0,0.0,0.0,4.0,33.0,11.0,0.0,12.0,80.0,loc_rfr_riv_smote,SMOTE
+RFR SMOTE,RIVER CSS LOG,,,,,,,,24.0,0.0,0.0,4.0,35.0,9.0,0.0,12.0,80.0,loc_rfr_riv_smote,SMOTE
+RFR SMOTE1,RIVER,,,,,,,,24.0,0.0,0.0,2.0,35.0,11.0,0.0,12.0,80.0,loc_rfr_riv_smote1,SMOTE1
+RFR SMOTE1,RIVER CSS,,,,,,,,21.0,0.0,3.0,4.0,33.0,11.0,0.0,11.0,81.0,loc_rfr_riv_smote1,SMOTE1
+RFR SMOTE1,RIVER CSS LOG,,,,,,,,24.0,0.0,0.0,4.0,35.0,9.0,0.0,12.0,80.0,loc_rfr_riv_smote1,SMOTE1
+RFR SMOTE2,RIVER CSS LOG,,,,,,,,24.0,0.0,0.0,4.0,36.0,8.0,0.0,12.0,80.0,loc_rfr_rivcsslog_smote2,SMOTE2 and bootstrap allowed to vary
+RFR SMOTE1,RIVER CSS LOG,,,,,,,,24.0,0.0,0.0,4.0,34.0,10.0,0.0,12.0,80.0,loc_rfr_rivcsslog_smote1,SMOTE1 and bootstrap allowed to vary
+KNN,RIVER,,,,,,,,24.0,0.0,0.0,5.0,26.0,17.0,4.0,9.0,79.0,loc_knn_riv,
+KNN,RIVER CSS,,,,,,,,17.0,0.0,7.0,4.0,19.0,25.0,6.0,10.0,76.0,loc_knn_riv,
+KNN,RIVER CSS LOG,,,,,,,,20.0,0.0,4.0,4.0,29.0,15.0,3.0,17.0,72.0,loc_knn_riv,
+KNN ADASYN,RIVER,,,,,,,,24.0,0.0,0.0,5.0,29.0,14.0,3.0,9.0,80.0,loc_knn_riv_adasyn,ADASYN
+KNN ADASYN,RIVER CSS,,,,,,,,19.0,2.0,3.0,4.0,32.0,12.0,7.0,27.0,58.0,loc_knn_riv_adasyn,ADASYN
+KNN ADASYN,RIVER CSS LOG,,,,,,,,24.0,0.0,0.0,4.0,33.0,11.0,6.0,14.0,72.0,loc_knn_riv_adasyn,ADASYN
+KNN ROS,RIVER,,,,,,,,24.0,0.0,0.0,5.0,28.0,15.0,2.0,8.0,82.0,loc_knn_riv,RandomOverSampling
+KNN ROS,RIVER CSS,,,,,,,,16.0,1.0,7.0,4.0,24.0,20.0,1.0,14.0,77.0,loc_knn_riv,RandomOverSampling
+KNN ROS,RIVER CSS LOG,,,,,,,,24.0,0.0,0.0,4.0,31.0,13.0,2.0,16.0,74.0,loc_knn_riv,RandomOverSampling
+KNN SMOTE,RIVER,,,,,,,,24.0,0.0,0.0,5.0,30.0,13.0,2.0,9.0,81.0,loc_knn_riv_smote,SMOTE
+KNN SMOTE,RIVER CSS,,,,,,,,20.0,1.0,3.0,4.0,28.0,16.0,2.0,18.0,72.0,loc_knn_riv_smote,SMOTE
+KNN SMOTE,RIVER CSS LOG,,,,,,,,24.0,0.0,0.0,4.0,35.0,9.0,6.0,17.0,69.0,loc_knn_riv_smote,SMOTE
+KNN SMOTE2,RIVER,,,,,,,,24.0,0.0,0.0,5.0,30.0,13.0,2.0,9.0,81.0,loc_knn_riv_smote2,SMOTE2
+KNN SMOTE2,RIVER CSS,,,,,,,,21.0,0.0,3.0,7.0,25.0,16.0,16.0,22.0,54.0,loc_knn_riv_smote2,SMOTE2
+KNN SMOTE2,RIVER CSS LOG,,,,,,,,24.0,0.0,0.0,4.0,31.0,13.0,5.0,13.0,74.0,loc_knn_riv_smote2,SMOTE2
+KNN SMOTE1,RIVER,,,,,,,,24.0,0.0,0.0,5.0,28.0,15.0,3.0,8.0,81.0,loc_knn_riv_smote1,SMOTE1
+KNN SMOTE1,RIVER CSS,,,,,,,,18.0,3.0,3.0,3.0,29.0,16.0,4.0,20.0,68.0,loc_knn_riv_smote1,SMOTE1
+KNN SMOTE1,RIVER CSS LOG,,,,,,,,24.0,0.0,0.0,6.0,31.0,11.0,4.0,14.0,74.0,loc_knn_riv_smote1,SMOTE1

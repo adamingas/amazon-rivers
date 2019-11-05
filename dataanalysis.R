@@ -35,7 +35,7 @@ fullotudf[,] <- sapply(fullotudf[,],as.numeric)
 riverotus = read.csv(header = FALSE,file = "riverotus.csv",stringsAsFactors = F)
 
 
-#riverotus[riverotus$V2 == "yes","V1"]
+riverotus[riverotus$V2 == "yes","V1"]
 index_of_riverotus = names(otudf) %in% riverotus[riverotus$V2 == "yes","V1"]
 riverdf = otudf[,index_of_riverotus]
 
