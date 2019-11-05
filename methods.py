@@ -193,7 +193,7 @@ def log_cv(*args,X, y,trainfolds,**kwargs):
         foldscv = StratifiedKFold(n_splits=5,random_state=11235)
         trainfolds =foldscv.split(X,wwfdf.Area_group.loc[X.index])
     gsc = GridSearchCV(
-    estimator=LogisticRegression(penalty=penalty,solver='saga',max_iter=1000,random_state=kwargs["estimator_random_state"],
+    estimator=LogisticRegression(penalty=penalty,solver='saga',max_iter=1000,random_state=kwargs["random_state"],
     fit_intercept=True,multi_class = "multinomial"),
         param_grid={
             'C': [0.0001,0.001,0.01,0.1,1,20,50] + list(np.arange(2,20,1))
@@ -213,7 +213,7 @@ def log_cv(*args,X, y,trainfolds,**kwargs):
     return best_params,grid_result,coefficients
 
 
-def rfr_cv(*args,X, y,trainfolds):
+def rfr_cv(*args,X, y,random_state,trainfolds):
     """
     Function performs Grid search Cross validation for random forrests with trainfolds as folds generator. 
     Inputs:
@@ -230,7 +230,7 @@ def rfr_cv(*args,X, y,trainfolds):
         trainfolds =foldscv.split(X,wwfdf.Area_group.loc[X.index])
     # Perform Grid-Search
     gsc = GridSearchCV(
-        estimator=RandomForestClassifier(random_state = 11235),
+        estimator=RandomForestClassifier(random_state = random_state),
         param_grid={
             'max_depth':(list(range(3,7))+[None]),
             'n_estimators': [100,300,500,1000],
@@ -250,7 +250,7 @@ def rfr_cv(*args,X, y,trainfolds):
 
     return (best_params,grid_result,coefficients)
 
-def som_cv(*args,X,y,trainfolds):
+def som_cv(*args,X,y,trainfolds,random_state):
     if trainfolds ==None:
             foldscv = StratifiedKFold(n_splits=5,random_state=11235)
             trainfolds =foldscv.split(X,wwfdf.Area_group.loc[X.index])
@@ -276,7 +276,7 @@ def som_cv(*args,X,y,trainfolds):
     
 
 
-def knn_cv(*args,X, y,trainfolds):
+def knn_cv(*args,X, y,trainfolds,**kwargs):
     """
     Function performs Grid search Cross validation for random forrests with trainfolds as folds generator. 
     Inputs:
@@ -317,7 +317,7 @@ def knn_cv(*args,X, y,trainfolds):
 
     return (best_params,grid_result,None)
 
-def xgb_cv(X, y,trainfolds):
+def xgb_cv(*args,X, y,trainfolds,random_state):
     """
     Function performs Grid search Cross validation for random forrests with trainfolds as folds generator. 
     Inputs:
