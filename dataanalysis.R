@@ -49,7 +49,7 @@ wwfdf$Water %<>% as.factor
 wwfdf$ID_nosamples <- gsub(pattern = "[a-zA-Z-]","",wwfdf$ID)
 wwfdf$ID_nosamples %<>% as.factor
 #write.csv(wwfdf,file="wwfdf")
-#write.csv(otudf,file = "otudf")
+write.csv(otudf,file = "otudf")
 plotfun <- function(data,axis1,axis2){
   mergeddata  <-merge(data,wwfdf[,c("ID","Area_group","Area_group_name","Water")],by.x=0,by.y="ID")
  return( ggplot(mergeddata,aes_string(axis1,axis2,shape = "Water"),size = 2) 
