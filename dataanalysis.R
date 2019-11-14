@@ -191,7 +191,7 @@ plot(ccaotudf)
 
 otudist.pam <- pam(x=otudist,diss = TRUE,k=2)
 summary(otudist.pam)
-otudf %>% 
+riverdf %>% 
   vegdist(method ="bray")%>%
   pam(diss = T,k=2)%>%
   plot(which.plot = 2)
