@@ -22,7 +22,7 @@ K-means clustering with 7 clusters applied to riverdfcsslog dataset.
 Rand index is at 0.526 which is good.
 ![K-means, 7 clusters riverdfcsslog](images/kmeans7_rivcsslog.png) 
 If we use the same technique with river and river Css we get much worse results.
-![K-means, 7 clusters riverdfcss](..images/kmeans7_rivcss.png) 
+![K-means, 7 clusters riverdfcss](images/kmeans7_rivcss.png) 
 ![K-means, 7 clusters riverdf](images/kmeans7_riv.png) 
 
 
@@ -58,4 +58,4 @@ Affinity propagation does not know the number of cluster from before hand and tr
 If we use the same technique with river and river Css we get random allocation. The preference has to be set selected from before hand, and an apriori way has to be developed to do so. Eg using the median of the similarity matrix, which depends on the scale of points. We could restate the problem as an optimisation one to select the parameters that produce the best Rand index, but that would go against the principle of "a priori" exploration without targets.
 
 ## Conclusions
-We can draw some conclusions from the results of the unsupervised approach. First of all, there seems to be some structure to the OTU count data that can be partially ascribed to their location. Samples grouped together spatially also tend to be grouped in their species compositions. Furthermore, there seems to be some strong cohesion between most upper maranon samples and between mid maranon and tapiche. Unfortunately, water colour doesn't directly show up, but that might be because the white water group is very diverse (if you look at the NMDS plots of the samples and colour them by water colour you can see that there is some difference between the centers of the two groups and that the white water samples are very spread out). 
+We can draw some conclusions from the results of the unsupervised approach. First of all, there seems to be some structure to the OTU count data that can be partially ascribed to their location. Samples grouped together spatially also tend to be grouped in their species compositions. Furthermore, there seems to be some strong cohesion between most upper maranon samples, and between mid maranon and tapiche. Unfortunately, water colour doesn't directly show up, but that might be because the white water group is very diverse (if you look at the NMDS plots of the samples and colour them by water colour you can see that there is some difference between the centers of the two groups and that the white water samples are very spread out). 
