@@ -1,4 +1,4 @@
-# Supervised Machine Learning
+# Classification, Supervised Machine Learning
 We chose  sets of target variables for the supervised  approach. Water colour, A combination of river areas and colour, and a pure area one. There are two water colours, and 7 major river areas. We also used two feature sets (OTU tables); one with only river inhabiting species and one with all of them, including those not taxonomically assigned to any species. 
 
 ## Water colour
@@ -54,4 +54,18 @@ Therefore, we can assume that even with OTU count data which are generally hard 
 
 
 
+# Regression/ Supervised Machine Learning
+Given what we figured out from the classification setting, we could potentially use machine learning to infer continuous values rather than class labels. An example of such setting is the prediction of the health status of a sample on a given scale. We wouldn't be able to use  
+
+# TODO
+Case resampling to determine distribution of parameters with errors. A little bit difficult since it requires repeating the procedure multiple times to get good estimates.
+Carry out resampling a number of times with different seeds and use test to determine if accuracy is significant
+classification of trips
+
+# paper
+high level summary story making,audience ecologists conservation people
+message:
+Black and White: proof of concept
+limitations: sampling not planned, small dataset, ad hoc, still potential 
+(https://blogs.sas.com/content/iml/2018/10/24/bootstrap-regression-case-resampling.html)
 
