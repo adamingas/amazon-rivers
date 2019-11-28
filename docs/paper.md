@@ -1,3 +1,4 @@
+[Back to index](index.md)   
 **Assumptions**: This draft makes some assumptions abouts its intended audience and about the content already presented in the previous part of the paper.  
 **Audience**: The audience is not assumed to have any training in Machine Learning techniques or Mathematics for that matter.  
 **Content**: The meta data are assumed to have been explained in a previous part of the paper. In particular, that we are sampling from a river, that we track location of the samples and that they broadly belong to 7 parts of the river {Upper, Mid, Lower Maranon, Tapiche, Huallaga, Ucayalli, Napo}, and that each sample comes from either black or white water.   
@@ -42,7 +43,7 @@ The majority of clusterings we performed were mostly influenced, given the meta 
 
 
 ## Supervised Learning
-As mentioned earlier, supervised methods require target data to be used for prediction. Suitable variables which were collected for each sample include water colour and the part of the river which they were sourced from. 
+As mentioned earlier, supervised methods require target data to be used for prediction. Suitable variables which were collected for each sample include water colour and the part of the river which they were sourced from. The first set of labels we constructed used just the water colourFrom these we constructed three sets of labels; 
 
 
 

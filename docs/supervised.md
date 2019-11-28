@@ -58,6 +58,7 @@ Therefore, we can assume that even with OTU count data which are generally hard 
 Given what we figured out from the classification setting, we could potentially use machine learning to infer continuous values rather than class labels. An example of such setting is the prediction of the health status of a sample on a given scale. We wouldn't be able to use  
 
 # TODO
+Size of river but do not separate out black water
 Case resampling to determine distribution of parameters with errors. A little bit difficult since it requires repeating the procedure multiple times to get good estimates.
 Carry out resampling a number of times with different seeds and use test to determine if accuracy is significant
 classification of trips
